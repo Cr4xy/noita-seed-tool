@@ -1,0 +1,6 @@
+.fungal-shift:nth-child(even) {
+  background-color: hsla(var(--b2)/var(--tw-bg-opacity,1));
+}
+.perk-active {
+  background-color: hsla(var(--a)/var(--tw-bg-opacity,1));
+}
