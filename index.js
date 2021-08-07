@@ -379,7 +379,7 @@ class PerkInfoProvider extends InfoProvider {
           let picked_perk = perkPicks[i++]
           if (picked_perk) {
             GameAddFlagRun(get_perk_picked_flag_name(picked_perk));
-            var flag_name = get_perk_picked_flag_name( perk_id );
+            var flag_name = get_perk_picked_flag_name(picked_perk);
             GlobalsSetValue( flag_name + "_PICKUP_COUNT", Number(GlobalsGetValue( flag_name + "_PICKUP_COUNT", "0" )) + 1 );
             if (picked_perk == "EXTRA_PERK") {
               GlobalsSetValue(parseFloat(GlobalsGetValue("TEMPLE_PERK_COUNT")) + 1)
