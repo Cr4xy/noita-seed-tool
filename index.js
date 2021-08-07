@@ -172,6 +172,16 @@ class PerkInfoProvider extends InfoProvider {
         for (let i = 0; i < count; i++) {
           let next_perk_index = parseFloat( GlobalsGetValue( "TEMPLE_NEXT_PERK_INDEX", "0" ) );
           let perk_id = perks[next_perk_index];
+
+          //while( perk_id == undefined || perk_id == "" ) {
+          //  // if we over flow
+          //  perks[next_perk_index] = "LEGGY_FEET"
+          //  next_perk_index = next_perk_index + 1		
+          //  if (next_perk_index > perks.length) then
+          //    next_perk_index = 0;
+          //  }
+          //  perk_id = perks[next_perk_index];
+          //}
           
           next_perk_index++;
           if (next_perk_index >= perks.length) {
@@ -202,103 +212,152 @@ class PerkInfoProvider extends InfoProvider {
         }
         return [is_stackable, is_rare]
       }
+
+      var shuffle_table = function( t ) {
+        //assert( t, "shuffle_table() expected a table, got nil" )
+        var iterations = t.length - 1;
+        var j;
+        
+        for (var i = iterations; i >= 1; i--) {
+        //for i = iterations, 2, -1 do
+          j = Random(0, i);
+          //console.log("j", j);
+          var tmp = t[i];
+          t[i] = t[j];
+          t[j] = tmp;
+          //[t[i], t[j]] = [t[j], t[i]];
+        }
+      }
+
+      var table_contains = function(table, element) {
+        return Object.values(table).indexOf(element) !== -1
+      };
     
       // this generates global perk spawn order for current world seed
-      function perk_get_spawn_order() {
-        // this function should return the same results no matter when or where during a run it is called.
-        // this function should have no side effects.
-        let MIN_DISTANCE_BETWEEN_DUPLICATE_PERKS = 4;
-        let PERK_SPAWN_ORDER_LENGTH = 300;
-        let PERK_DUPLICATE_AVOIDANCE_TRIES = 400;
-    
+      function perk_get_spawn_order( ignore_these_ ) {
+        // this function should return the same list in the same order no matter when or where during a run it is called.
+        // the expection is that some of the elements in the list can be set to "" to indicate that they're used
+      
+        // 1) Create a Deck from all the perks, add multiple of stackable
+        // 2) Shuffle the Deck
+        // 3) Remove duplicate perks that are too close to each other
+      
+        // NON DETERMISTIC THINGS ARE ALLOWED TO HAPPEN
+        // 4) Go through the perk list and "" the perks we've picked up
+      
+        var ignore_these = ignore_these_ || {};
+      
+        var MIN_DISTANCE_BETWEEN_DUPLICATE_PERKS = 4;
+        var DEFAULT_MAX_STACKABLE_PERK_COUNT = 128;
+      
         SetRandomSeed( 1, 2 );
-        
-        function create_perk_pool() {
-          let result = [];
-    
-          for (let perk_data of perk_list) {
-            if (perk_data.not_in_default_perk_pool == undefined || perk_data.not_in_default_perk_pool == null || perk_data.not_in_default_perk_pool == false) {
-              result.push(perk_data);
+      
+        // 1) Create a Deck from all the perks, add multiple of stackable
+        // create the perk pool
+        // var perk_pool = {}
+        var perk_deck = [];
+        var stackable_distances = {};
+        var stackable_count = {};			// -1 = NON_STACKABLE otherwise the result is how many times can be stacked
+      
+      
+        // function create_perk_pool
+        for (var i = 0; i < perk_list.length; i++) {
+          var perk_data = perk_list[i];
+          if ( ( table_contains( ignore_these, perk_data.id ) == false ) && ( !perk_data.not_in_default_perk_pool ) ) {
+            var perk_name = perk_data.id;
+            var how_many_times = 1;
+            stackable_distances[ perk_name ] = -1;
+            stackable_count[ perk_name ] = -1;
+      
+            if ( perk_data.stackable == true ) {
+              var max_perks = Random( 1, 2 );
+              // TODO( Petri ): We need a new variable that indicates how many times they can appear in the pool
+              if( perk_data.max_in_perk_pool ) {
+                max_perks = Random( 1, perk_data.max_in_perk_pool );
+              }
+      
+              if( perk_data.stackable_maximum ) {
+                stackable_count[ perk_name ] = perk_data.stackable_maximum;
+              } else {
+                stackable_count[ perk_name ] = DEFAULT_MAX_STACKABLE_PERK_COUNT;
+              }
+      
+              if( ( perk_data.stackable_is_rare ) && ( perk_data.stackable_is_rare == true ) ) {
+                max_perks = 1;
+              }
+      
+              stackable_distances[ perk_name ] = perk_data.stackable_how_often_reappears || MIN_DISTANCE_BETWEEN_DUPLICATE_PERKS;
+      
+              how_many_times = Random( 1, max_perks );
+            }
+      
+            for (var j = 1; j <= how_many_times; j++) {
+              perk_deck.push(perk_name);
             }
           }
-    
-          return result;
         }
-    
-        let perk_pool = create_perk_pool();
-    
-        let result = [];
-        let nonstackables = { };
-    
-        for (let i = 0; i < PERK_SPAWN_ORDER_LENGTH; i++) {
-          let tries = 0;
-          let perk_data = null;
-    
-          while (tries < PERK_DUPLICATE_AVOIDANCE_TRIES) {
-            let ok = true;
-            if (perk_pool.length == 0) {
-              perk_pool = create_perk_pool();
-            }
-    
-            let index_in_perk_pool = Random( 1, perk_pool.length ) - 1;
-            perk_data = perk_pool[index_in_perk_pool];
+
+        //console.log("STEP 1", perk_deck);
+      
+        // 2) Shuffle the Deck
+        shuffle_table( perk_deck );
+
+        //console.log("STEP 2", perk_deck);
+      
+        // 3) Remove duplicate perks that are too close to each other
+        // we need to do this in reverse, since otherwise table.remove might cause the iterator to bug out
+        for (var i = perk_deck.length - 1; i >= 0; i--) {
+          var perk = perk_deck[i];
+          if( stackable_distances[ perk ] != -1 ) {
+      
+            var min_distance = stackable_distances[ perk ];
+            var remove_me = false;
             
-            let [can_stack, only_once_per_spawn_order] = perk_is_stackable( perk_data );
-    
-            if (can_stack && ( only_once_per_spawn_order == false )) {
-              
-              // Perks may have a special reoccurrence value
-              let min_distance = perk_data.stackable_how_often_reappears || MIN_DISTANCE_BETWEEN_DUPLICATE_PERKS;
-              
-              for (let ri = result.length - min_distance - 1; ri <= result.length; ri++) { //--  ensure stackable perks are not spawned too close to each other
-                if (ri >= 0 && result[ri] == perk_data.id) {
-                  ok = false;
-                  break;
-                }
+            //  ensure stackable perks are not spawned too close to each other
+            for (var ri = i - min_distance; ri < i - 1; ri++) {
+              if (ri >= 1 && perk_deck[ri] == perk) {
+                remove_me = true;
+                break;
               }
-            } else {
-              if ( can_stack == false ) { //--  mark actual nonstackable perks so that they never appear again
-                nonstackables[perk_data.id] = 1;
-              }
-              
-              perk_pool.splice(index_in_perk_pool, 1); //-- remove non-stackable perks and rare stackable perks from the pool
             }
-    
-            if (ok) {
-              //--print( "Ignoring " .. perk_data.id .. " because it tried to reappear too soon" )
-              break;
-            }
-    
-            tries++;
+      
+            if( remove_me ) { perk_deck.splice(i, 1); }
           }
-    
-          result.push(perk_data.id);
+        }
+
+        //console.log("STEP 3", perk_deck);
+      
+        // NON DETERMISTIC THINGS ARE ALLOWED TO HAPPEN
+        // 4) Go through the perk list and "" the perks we've picked up
+        // remove non-stackable perks already collected from the list
+        for (var i = 0; i < perk_deck.length; i++) {
+          var perk_name = perk_deck[i];
+          var flag_name = get_perk_picked_flag_name( perk_name );
+          var pickup_count = Number( GlobalsGetValue( flag_name + "_PICKUP_COUNT", "0" ) );
+          
+          // GameHasFlagRun( flag_name ) - this is if its ever been spawned
+          // has been picked up
+          if( ( pickup_count > 0 ) ) {
+            var stack_count = stackable_count[ perk_name ] || -1;
+            // print( perk_name .. ": " .. tostring( stack_count ) )
+            if( ( stack_count == -1 ) || ( pickup_count >= stack_count ) ) {
+              perk_deck[i] = "";
+            }
+          }
+        }
+
+        //console.log("STEP 4", perk_deck);
+      
+        // DEBUG
+        if ( false ) {
+          for (var i = 0; i < perk_deck.length; i++) {
+            var perk = perk_deck[i];
+            console.log(  String( i ) + ": " + perk )
+          }
         }
         
-        //-- remove non-stackable perks already collected from the list
-        for (let i = 0; i < result.length; i++) {
-          let perk_id = result[i];
-          let flag_name = get_perk_picked_flag_name( perk_id );
-          let pickup_count = parseFloat( GlobalsGetValue( flag_name + "_PICKUP_COUNT", "0" ) );
-          
-          if ((nonstackables[perk_id] != null ) && ( ( pickup_count > 0 ) || GameHasFlagRun( flag_name ) )) {
-            //console.log( "Removed " + perk_id + " from perk pool because it had been picked up already" );
-            result.splice(i, 1);
-          }
-        }
-    
-        //-- shift the results a random number forward
-        let new_start_i = Random( 10, 20 ) - 1;
-        let real_result = [];
-        for (let i = 0; i < PERK_SPAWN_ORDER_LENGTH; i++) {
-          real_result[i] = result[ new_start_i ];
-          new_start_i++;
-          if( new_start_i >= result.length ) {
-            new_start_i = 0;
-          }
-        }
-    
-        return real_result;
+      
+        return perk_deck;
       }
       let result = [];
       let i, world = 0;
@@ -319,7 +378,9 @@ class PerkInfoProvider extends InfoProvider {
           }
           let picked_perk = perkPicks[i++]
           if (picked_perk) {
-            GameAddFlagRun(get_perk_picked_flag_name(picked_perk))
+            GameAddFlagRun(get_perk_picked_flag_name(picked_perk));
+            var flag_name = get_perk_picked_flag_name( perk_id );
+            GlobalsSetValue( flag_name + "_PICKUP_COUNT", Number(GlobalsGetValue( flag_name + "_PICKUP_COUNT", "0" )) + 1 );
             if (picked_perk == "EXTRA_PERK") {
               GlobalsSetValue(parseFloat(GlobalsGetValue("TEMPLE_PERK_COUNT")) + 1)
             }
@@ -721,6 +782,7 @@ app = new Vue({
   methods: {
     searchSeed() {
       let success;
+      if (this.seed == 0) this.seed++;
       while (true) {
         SetWorldSeed(Number(this.seed));
         success = true;
@@ -844,7 +906,6 @@ app = new Vue({
           rainType: [false]
         };
       }
-      console.log("seedInfo compute");
       SetWorldSeed(Number(this.seed));
       this.seedInfo = {
         rainType: infoProviders.RAIN.provide(),
