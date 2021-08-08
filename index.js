@@ -77,6 +77,7 @@ class StartingFlaskInfoProvider extends InfoProvider {
     let res = Random(1, 100);
 
     if (res <= 65) {
+      res = Random(1, 100);
       if (res <= 10) {
         material = "mud";
       }
@@ -282,7 +283,7 @@ class PerkInfoProvider extends InfoProvider {
                 stackable_count[ perk_name ] = DEFAULT_MAX_STACKABLE_PERK_COUNT;
               }
       
-              if( ( perk_data.stackable_is_rare ) && ( perk_data.stackable_is_rare == true ) ) {
+              if( perk_data.stackable_is_rare == true ) {
                 max_perks = 1;
               }
       
@@ -314,8 +315,8 @@ class PerkInfoProvider extends InfoProvider {
             var remove_me = false;
             
             //  ensure stackable perks are not spawned too close to each other
-            for (var ri = i - min_distance; ri < i - 1; ri++) {
-              if (ri >= 1 && perk_deck[ri] == perk) {
+            for (var ri = i - min_distance; ri < i; ri++) {
+              if (ri >= 0 && perk_deck[ri] == perk) {
                 remove_me = true;
                 break;
               }
@@ -362,6 +363,7 @@ class PerkInfoProvider extends InfoProvider {
       let result = [];
       let i, world = 0;
       _G = {};
+      GlobalsSetValue("TEMPLE_PERK_COUNT", "3")
       let temple_locations = this.temples;
       while (true) {
         i = 0;
@@ -382,7 +384,7 @@ class PerkInfoProvider extends InfoProvider {
             var flag_name = get_perk_picked_flag_name(picked_perk);
             GlobalsSetValue( flag_name + "_PICKUP_COUNT", Number(GlobalsGetValue( flag_name + "_PICKUP_COUNT", "0" )) + 1 );
             if (picked_perk == "EXTRA_PERK") {
-              GlobalsSetValue(parseFloat(GlobalsGetValue("TEMPLE_PERK_COUNT")) + 1)
+              GlobalsSetValue("TEMPLE_PERK_COUNT", parseFloat(GlobalsGetValue("TEMPLE_PERK_COUNT")) + 1)
             }
           }
         }
