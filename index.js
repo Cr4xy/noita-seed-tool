@@ -893,13 +893,15 @@ app = new Vue({
     }
   },
   watch: {
-    seed() {
+    seed(val, oldVal) {
       this.perkWorldOffset = 0;
       this.pickedPerks = [];
       //this.fungalHoldingFlaskAll = false;
       let url = new URL(document.URL);
       url.searchParams.set("seed", this.seed);
       history.replaceState(null, null, url.search);
+      if (this.seed == 666) document.querySelector("link[rel='shortcut icon']").href = "favicon666.png";
+      else if (oldVal == 666) document.querySelector("link[rel='shortcut icon']").href = "favicon.png";
 
       if (!this.seed) {
         this.seedInfo = {
