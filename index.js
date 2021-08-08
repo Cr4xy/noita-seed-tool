@@ -115,7 +115,67 @@ class StartingFlaskInfoProvider extends InfoProvider {
   }
 }
 
-class StartingBombWandInfoProvider extends InfoProvider {
+class StartingSpellInfoProvider extends InfoProvider {
+  async load() {
+    this.spells = ["LIGHT_BULLET", "SPITTER", "RUBBER_BALL", "BOUNCY_ORB"];
+  }
+  provide() {
+    SetRandomSeed(0, -11);
+    function get_random_between_range(target) {
+      var minval = target[1]
+      var maxval = target[2]
+      return Random(minval, maxval)
+    }
+
+    function get_random_from(target) {
+      var rnd = Random(0, target.length - 1)
+      
+      return String(target[rnd])
+    }
+
+    var gun = { };
+    gun.name = ["Bolt staff"];
+    gun.deck_capacity = [2,3];
+    gun.actions_per_round = 1;
+    gun.reload_time = [20,28];
+    gun.shuffle_deck_when_empty = 0;
+    gun.fire_rate_wait = [9,15];
+    gun.spread_degrees = 0;
+    gun.speed_multiplier = 1;
+    gun.mana_charge_speed = [25,40];
+    gun.mana_max = [80,130];
+    // Note(Petri): Removed DYNAMITE
+    gun.actions = ["SPITTER", "RUBBER_BALL", "BOUNCY_ORB"];
+
+    var mana_max = get_random_between_range( gun.mana_max );
+    var deck_capacity = get_random_between_range( gun.deck_capacity );
+
+    var ui_name = get_random_from( gun.name );
+
+    var gun_config_reload_time = get_random_between_range( gun.reload_time );
+    var gunaction_config_fire_rate_wait = get_random_between_range( gun.fire_rate_wait );
+    var mana_charge_speed = get_random_between_range( gun.mana_charge_speed);
+
+    var gun_config_actions_per_round = gun.actions_per_round;
+    var gun_config_deck_capacity = deck_capacity;
+    var gun_config_shuffle_deck_when_empty = gun.shuffle_deck_when_empty;
+    var gunaction_config_spread_degrees = gun.spread_degrees;
+    var gunaction_config_speed_multiplier = gun.speed_multiplier;
+
+    var mana_max = mana_max;
+    var mana = mana_max;
+
+    var action_count = Math.min(Random(1,3), Number(deck_capacity));
+    var gun_action = "LIGHT_BULLET";
+
+    if( Random(1,100) < 50 ) {
+        gun_action = get_random_from( gun.actions )
+    }
+    return gun_action;
+  }
+}
+
+class StartingBombSpellInfoProvider extends InfoProvider {
   async load() {
     this.spells = ["BOMB", "DYNAMITE", "MINE", "ROCKET", "GRENADE"];
   }
@@ -535,7 +595,8 @@ class MaterialInfoProvider extends InfoProvider {
 const infoProviders = {
   RAIN: new RainInfoProvider,
   STARTING_FLASK: new StartingFlaskInfoProvider,
-  STARTING_BOMB_WAND: new StartingBombWandInfoProvider,
+  STARTING_SPELL: new StartingSpellInfoProvider,
+  STARTING_BOMB_SPELL: new StartingBombSpellInfoProvider,
   PERK: new PerkInfoProvider,
   FUNGAL_SHIFT: new FungalInfoProvider,
   MATERIAL: new MaterialInfoProvider,
@@ -559,10 +620,20 @@ class SeedRequirementStartingFlask extends SeedRequirement {
   }
 }
 
-class SeedRequirementStartingBombWand extends SeedRequirement {
+class SeedRequirementStartingSpell extends SeedRequirement {
   constructor() {
-    super("StartingBombWand", "Starting Bomb Wand", true);
-    this.provider = infoProviders.STARTING_BOMB_WAND;
+    super("StartingSpell", "Starting Spell", true);
+    this.provider = infoProviders.STARTING_SPELL;
+  }
+  test(spell) {
+    return spell === this.provider.provide();
+  }
+}
+
+class SeedRequirementStartingBombSpell extends SeedRequirement {
+  constructor() {
+    super("StartingBombSpell", "Starting Bomb Spell", true);
+    this.provider = infoProviders.STARTING_BOMB_SPELL;
   }
   test(spell) {
     return spell === this.provider.provide();
@@ -673,28 +744,51 @@ RequirementStartingFlask.deserialize = function(str) {
 }
 RequirementStartingFlask.displayName = "Starting Flask";
 
-const RequirementStartingBombWand = function() {
-  this.type = "StartingBombWand";
-  this.requirement = new SeedRequirementStartingBombWand();
+const RequirementStartingSpell = function() {
+  this.type = "StartingSpell";
+  this.requirement = new SeedRequirementStartingSpell();
   this.spells = this.requirement.provider.spells;
   this.spell = this.spells[0];
 };
-RequirementStartingBombWand.prototype.test = function() {
+RequirementStartingSpell.prototype.test = function() {
   return this.requirement.test(this.spell);
 }
-RequirementStartingBombWand.prototype.textify = function() {
-  return "Start with a bomb wand that has " + this.spell + " in it"
+RequirementStartingSpell.prototype.textify = function() {
+  return "Have " + this.spell + " as its starting spell"
 }
-RequirementStartingBombWand.prototype.serialize = function() {
+RequirementStartingSpell.prototype.serialize = function() {
+  return "ss-s" + this.spell;
+}
+RequirementStartingSpell.deserialize = function(str) {
+  if (!str.startsWith("ss")) return;
+  let req = new RequirementStartingSpell();
+  [req.spell] = str.match(/^ss\-s(.+?)$/).slice(1);
+  return req;
+}
+RequirementStartingSpell.displayName = "Starting Spell";
+
+const RequirementStartingBombSpell = function() {
+  this.type = "StartingBombSpell";
+  this.requirement = new SeedRequirementStartingBombSpell();
+  this.spells = this.requirement.provider.spells;
+  this.spell = this.spells[0];
+};
+RequirementStartingBombSpell.prototype.test = function() {
+  return this.requirement.test(this.spell);
+}
+RequirementStartingBombSpell.prototype.textify = function() {
+  return "Have " + this.spell + " as its starting bomb spell"
+}
+RequirementStartingBombSpell.prototype.serialize = function() {
   return "sbw-s" + this.spell;
 }
-RequirementStartingBombWand.deserialize = function(str) {
+RequirementStartingBombSpell.deserialize = function(str) {
   if (!str.startsWith("sbw")) return;
-  let req = new RequirementStartingBombWand();
+  let req = new RequirementStartingBombSpell();
   [req.spell] = str.match(/^sbw\-s(.+?)$/).slice(1);
   return req;
 }
-RequirementStartingBombWand.displayName = "Starting Bomb Wand";
+RequirementStartingBombSpell.displayName = "Starting Bomb Spell";
 
 const RequirementPerk = function() {
   this.type = "Perk";
@@ -762,7 +856,8 @@ app = new Vue({
     seedCriteria: [],
     availableRequirements: [      
       RequirementStartingFlask,
-      RequirementStartingBombWand,
+      RequirementStartingSpell,
+      RequirementStartingBombSpell,
       RequirementRain,
       RequirementPerk,
       RequirementFungalShift,
@@ -914,9 +1009,10 @@ app = new Vue({
       this.seedInfo = {
         rainType: infoProviders.RAIN.provide(),
         startingFlask: infoProviders.STARTING_FLASK.provide(),
-        startingBombWand: infoProviders.STARTING_BOMB_WAND.provide(),
+        startingSpell: infoProviders.STARTING_SPELL.provide(),
+        startingBombSpell: infoProviders.STARTING_BOMB_SPELL.provide(),
         perks: infoProviders.PERK.provide(this.pickedPerks, null, true, this.perkWorldOffset),
-        fungalShifts: infoProviders.FUNGAL_SHIFT.provide(null, this.fungalHoldingFlasks)
+        fungalShifts: infoProviders.FUNGAL_SHIFT.provide(null, this.fungalHoldingFlasks),
       };
     },
     fungalHoldingFlaskAll() {

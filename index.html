@@ -26,7 +26,7 @@
         </label>
         <input type="number" placeholder="Seed" v-model="seed" class="input input-bordered">
         <label class="label">
-          <a href="#" class="label-text-alt" @click="generateSeed">Random Seed</a> 
+          <a href="javascript:void(0)" class="label-text-alt" @click="generateSeed">Random Seed</a> 
         </label>
       </div>
       <div class="collapse w-6/12 border rounded-box border-base-300 collapse-arrow" id="search-for-seed-container">
@@ -59,7 +59,16 @@
                       </select>
                     </label>
                   </div>
-                  <div v-if="item.type === 'StartingBombWand'" class="whitespace-normal">
+                  <div v-if="item.type === 'StartingSpell'" class="whitespace-normal">
+                    <label>
+                      Bomb Spell
+                      <select class="select select-bordered w-full max-w-xs capitalize" v-model="seedCriteria[index].spell">
+                        <option disabled="disabled" selected="selected">Choose a spell</option> 
+                        <option v-for="(spell, i) in item.requirement.provider.spells" :value="spell" class="capitalize">{{ spell }}</option> 
+                      </select>
+                    </label>
+                  </div>
+                  <div v-if="item.type === 'StartingBombSpell'" class="whitespace-normal">
                     <label>
                       Bomb Spell
                       <select class="select select-bordered w-full max-w-xs capitalize" v-model="seedCriteria[index].spell">
@@ -200,7 +209,7 @@
           </div>
         </div>
         <div>
-          <div class="inline-block shadow stats">
+          <div class="shadow stats">
             <div class="stat">
               <div class="stat-title">Rain Type</div>
               <div class="stat-value">{{ seedInfo.rainType[0] ? seedInfo.rainType[1] : 'no rain' }}</div>
@@ -212,8 +221,13 @@
               <!--<div class="stat-desc">{{ (seedInfo.rainType[2] * 100).toFixed(10) + '% likely' }}</div>-->
             </div>
             <div class="stat">
-              <div class="stat-title">Starting Bomb Wand</div>
-              <div class="stat-value">{{ seedInfo.startingBombWand }}</div>
+              <div class="stat-title">Starting Spell</div>
+              <div class="stat-value">{{ seedInfo.startingSpell }}</div>
+              <!--<div class="stat-desc">{{ (seedInfo.rainType[2] * 100).toFixed(10) + '% likely' }}</div>-->
+            </div>
+            <div class="stat">
+              <div class="stat-title">Starting Bomb Spell</div>
+              <div class="stat-value">{{ seedInfo.startingBombSpell }}</div>
               <!--<div class="stat-desc">{{ (seedInfo.rainType[2] * 100).toFixed(10) + '% likely' }}</div>-->
             </div>
           </div>
