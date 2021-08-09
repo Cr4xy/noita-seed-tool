@@ -151,7 +151,6 @@ app = new Vue({
         let [type, value] = e.data;
         if (type === 0) { // progress report
           this.seedSearchCount = value;
-          console.log("got seedSearchCount", value)
         } else { // found seed
           this.seed = value;
           this.searchingSeed = false;

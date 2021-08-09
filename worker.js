@@ -18,12 +18,6 @@ self.onmessage = function(e) {
     }
   }
 
-  console.log('Worker received requirements', seedCriteria);
-
-  setTimeout(() => {
-    console.log("yep timeout")
-  }, 1000);
-
   let now = Date.now();
   let nextProgress = now;
   let success;
@@ -42,11 +36,8 @@ self.onmessage = function(e) {
     if (nextProgress <= now) {
       nextProgress = now + 500;
       self.postMessage([0, seed - initialSeed]);
-      //if ((seed - initialSeed) % 10000 == 0) {
-      //}
     }
   }
 
-  console.log('Posting message back to main script', seed);
   self.postMessage([1, seed]);
 }
