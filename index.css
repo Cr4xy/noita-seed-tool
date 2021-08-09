@@ -1,6 +1,10 @@
 .fungal-shift:nth-child(even) {
   background-color: hsla(var(--b2)/var(--tw-bg-opacity,1));
 }
+.perk > img {
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+}
 .perk-active {
   background-color: hsla(var(--a)/var(--tw-bg-opacity,1));
 }
