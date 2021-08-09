@@ -11,6 +11,7 @@
   <link href="index.css" rel="stylesheet" type="text/css" />
   <script src="lib/noita_random.js"></script>
   <script src="scripts/random.js"></script>
+  <script src="requirements.js"></script>
   <link rel="shortcut icon" href="favicon.png" type="image/png">
   <title>Noita Seed Tool</title>
 </head>
@@ -157,7 +158,13 @@
                     <div class="flex flex-col">
                       <div class="flex-grow"></div>
                       <button class="btn btn-accent mb-2" @click="copySeedSearchLink">Copy Link</button>
-                      <button class="btn btn-secondary" @click="searchSeed">Search</button>
+                      <button v-if="!searchingSeed" class="btn btn-secondary" @click="searchSeed">Search</button>
+                      <div v-else>
+                        <div>
+                          <span>Searched seeds:<br>{{ seedSearchCountStr }}</span>
+                        </div>
+                        <button class="btn btn-secondary" @click="cancelSeedSearch">Cancel</button>
+                      </div>
                     </div>
                   </div>
                 </td>
@@ -239,6 +246,6 @@
       </footer>
     </div>
   </div>
-  <script src="index.js"></script>
+  <script src="index2.js"></script>
 </body>
 </html>
