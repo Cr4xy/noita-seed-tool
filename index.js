@@ -71,7 +71,7 @@ app = new Vue({
       return true;
     },
     generateSeed() {
-      this.seed = Math.floor(Math.random() * 0xFFFFFF);
+      this.seed = Math.floor(Math.random() * 0xFFFFFFFF);
     },
     findSeed() {
       this.showSeedCriteria = !this.showSeedCriteria;

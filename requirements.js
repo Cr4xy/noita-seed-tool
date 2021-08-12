@@ -419,7 +419,7 @@ class PerkInfoProvider extends InfoProvider {
         for (let loc of temple_locations) {
           if (i >= maxLevels) break;
           let offsetX = 0, offsetY = 0;
-          if (worldOffset != 0) {
+          if (worldOffset != 0 && world != 0) {
             offsetX += 35840 * worldOffset;
             if (i + 1 == temple_locations.length) break;
           }
