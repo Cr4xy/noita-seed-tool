@@ -915,7 +915,10 @@ RequirementRain.displayName = "Rain";
 const RequirementStartingFlask = function() {
   this.type = "StartingFlask";
   this.requirement = new SeedRequirementStartingFlask();
-  this.material = this.requirement.provider.materials[0];
+  this.requirement.provider.ready.then(() => {
+    if (this.material) return;
+    this.material = this.requirement.provider.materials[0]
+  });
 };
 RequirementStartingFlask.prototype.test = function() {
   return this.requirement.test(this.material);
@@ -938,7 +941,10 @@ const RequirementStartingSpell = function() {
   this.type = "StartingSpell";
   this.requirement = new SeedRequirementStartingSpell();
   this.spells = this.requirement.provider.spells;
-  this.spell = this.spells[0];
+  this.requirement.provider.ready.then(() => {
+    if (this.spell) return;
+    this.spell = this.spells[0];
+  });
 };
 RequirementStartingSpell.prototype.test = function() {
   return this.requirement.test(this.spell);
@@ -961,7 +967,10 @@ const RequirementStartingBombSpell = function() {
   this.type = "StartingBombSpell";
   this.requirement = new SeedRequirementStartingBombSpell();
   this.spells = this.requirement.provider.spells;
-  this.spell = this.spells[0];
+  this.requirement.provider.ready.then(() => {
+    if (this.spell) return;
+    this.spell = this.spells[0];
+  });
 };
 RequirementStartingBombSpell.prototype.test = function() {
   return this.requirement.test(this.spell);
