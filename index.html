@@ -206,7 +206,7 @@
           </table>
         </div>
       </div>
-      <div class="flex flex-row w-64 min-w-max" v-if="seed > 0">
+      <div class="flex flex-row" v-if="seed > 0">
         <div class="flex flex-col inline-flex w-64">
           <h2><!--<img :src="'data:image/png;base64,' + infoProviders.PERK.perks.find(e => e.id === 'EXTRA_PERK').ui_icon" class="w-16 h-16" style="image-rendering: pixelated"> -->Perks</h2>
           <div class="p-4">
@@ -222,7 +222,7 @@
             </div>
           </div>
         </div>
-        <div class="flex flex-col inline-flex w-64 min-w-max justify-between">
+        <div class="ml-1 flex flex-col inline-flex w-64 min-w-max justify-between">
           <h2>Fungal Shifts</h2>
           <div class="form-control">
             <label class="cursor-pointer label">
@@ -248,7 +248,7 @@
             </div>
           </div>
         </div>
-        <div class="flex flex-col inline-flex w-64 min-w-max">
+        <div class="ml-1 flex flex-col inline-flex w-64 min-w-max">
           <h2>Biome Modifiers</h2>
           <div v-for="(modifier, biome) in seedInfo.biomeModifiers" v-if="modifier && isPrimaryBiome(biome)" class="biome-modifier p-2 w-full">
             <div class="relative w-full">
@@ -264,8 +264,8 @@
             </div>
           </div>
         </div>
-        <div>
-          <div class="shadow stats">
+        <div class="ml-1 w-4/12">
+          <div class="shadow flex flex-wrap rounded">
             <div class="stat">
               <div class="stat-title">Rain Type</div>
               <div class="stat-value">{{ seedInfo.rainType[0] ? seedInfo.rainType[1] : 'no rain' }}</div>
