@@ -249,8 +249,8 @@
               <div class="w-full bg-cover bg-no-repeat" :style="{ backgroundImage: 'url(\'data:image/png;base64,' + modifier.ui_decoration_file + '\')', backgroundPositionX: '50%', backgroundSize: '200% 100%' }"></div>
               <div class="w-20 bg-cover bg-no-repeat" :style="{ backgroundImage: 'url(\'data:image/png;base64,' + modifier.ui_decoration_file + '\')', backgroundPositionX: '100%' }"></div>
             </div>
-            <div class="h-16 flex items-center justify-center px-14 text-center capitalize" :title="modifier.ui_description">
-              {{ translateModifier(modifier.id) }}
+            <div class="h-16 flex items-center justify-center px-14 text-center capitalize">
+              <span class="z-10" :title="modifier.ui_description">{{ translateModifier(modifier.id) }}</span>
             </div>
           </div>
         </div>
