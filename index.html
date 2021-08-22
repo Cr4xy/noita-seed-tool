@@ -176,7 +176,7 @@
                   <div class="flex flex-row">
                     <button class="btn btn-primary" @click="addCriteria">+</button>
                     <div class="flex-grow"></div>
-                    <div>
+                    <div class="px-5">
                       <pre>Seed Criteria: {{ seedCriteriaText }}</pre>
                     </div>
                     <div class="flex-grow"></div>
@@ -242,15 +242,17 @@
         </div>
         <div class="flex flex-col inline-flex w-64 min-w-max">
           <h2>Biome Modifiers</h2>
-          <div v-for="(modifier, biome) in seedInfo.biomeModifiers" v-if="modifier && isPrimaryBiome(biome)" class="biome-modifier relative w-full">
-            {{ translateBiome(biome) }}
-            <div class="absolute bottom-0 flex flex-row min-w-max w-full h-16">
-              <div class="w-20 bg-cover bg-no-repeat" :style="{ backgroundImage: 'url(\'data:image/png;base64,' + modifier.ui_decoration_file + '\')' }"></div>
-              <div class="w-full bg-cover bg-no-repeat" :style="{ backgroundImage: 'url(\'data:image/png;base64,' + modifier.ui_decoration_file + '\')', backgroundPositionX: '50%', backgroundSize: '200% 100%' }"></div>
-              <div class="w-20 bg-cover bg-no-repeat" :style="{ backgroundImage: 'url(\'data:image/png;base64,' + modifier.ui_decoration_file + '\')', backgroundPositionX: '100%' }"></div>
-            </div>
-            <div class="h-16 flex items-center justify-center px-14 text-center capitalize">
-              <span class="z-10" :title="modifier.ui_description">{{ translateModifier(modifier.id) }}</span>
+          <div v-for="(modifier, biome) in seedInfo.biomeModifiers" v-if="modifier && isPrimaryBiome(biome)" class="biome-modifier p-2 w-full">
+            <div class="relative w-full">
+              <span class="capitalize">{{ translateBiome(biome) }}</span>
+              <div class="absolute bottom-0 flex flex-row min-w-max w-full h-16">
+                <div class="w-20 bg-cover bg-no-repeat" :style="{ backgroundImage: 'url(\'data:image/png;base64,' + modifier.ui_decoration_file + '\')' }"></div>
+                <div class="w-full bg-cover bg-no-repeat" :style="{ backgroundImage: 'url(\'data:image/png;base64,' + modifier.ui_decoration_file + '\')', backgroundPositionX: '50%', backgroundSize: '200% 100%' }"></div>
+                <div class="w-20 bg-cover bg-no-repeat" :style="{ backgroundImage: 'url(\'data:image/png;base64,' + modifier.ui_decoration_file + '\')', backgroundPositionX: '100%' }"></div>
+              </div>
+              <div class="h-16 flex items-center justify-center px-14 text-center capitalize">
+                <span class="z-10" :title="modifier.ui_description">{{ translateModifier(modifier.id) }}</span>
+              </div>
             </div>
           </div>
         </div>

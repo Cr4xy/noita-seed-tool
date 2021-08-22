@@ -174,8 +174,14 @@ app = new Vue({
       this.pickedPerks = [];
       //this.fungalHoldingFlaskAll = false;
       let url = new URL(document.URL);
-      url.searchParams.set("seed", this.seed);
-      history.replaceState(null, null, url.search);
+      if (this.seed)
+        url.searchParams.set("seed", this.seed);
+      else
+        url.searchParams.delete("seed");
+      if (url.search)
+        history.replaceState(null, null, url.search);
+      else
+        history.replaceState(null, null, url.pathname);
       if (this.seed == 666) document.querySelector("link[rel='shortcut icon']").href = "favicon666.png";
       else if (oldVal == 666) document.querySelector("link[rel='shortcut icon']").href = "favicon.png";
 
