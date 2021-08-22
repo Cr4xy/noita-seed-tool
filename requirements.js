@@ -557,6 +557,175 @@ class FungalInfoProvider extends InfoProvider {
   }
 }
 
+class BiomeModifierInfoProvider extends InfoProvider {
+  async load() {
+    this.modifiers = await this.loadAsync("data/biome_modifiers.json");
+    this.biomes = [
+      ["coalmine","mountain_hall"],
+      ["coalmine_alt"],
+      ["excavationsite"],
+      ["fungicave"],
+      ["snowcave"],
+      ["snowcastle"],
+      ["rainforest","rainforest_open"],
+      ["vault"],
+      ["crypt"],
+    ];
+    // only used by UI
+    this.biomeNames = await this.loadAsync("data/biome_names.json");
+  }
+  provide() {
+    // returns a table mapping biome_names to active_modifiers.
+    // this function should be deterministic, and have no side effects.
+
+    var biome_modifiers = this.modifiers;
+
+    var result = {};
+
+    var biomes = this.biomes;
+    var CHANCE_OF_MODIFIER_PER_BIOME = 0.1;
+    var CHANCE_OF_MODIFIER_COALMINE = 0.2;
+    var CHANCE_OF_MODIFIER_EXCAVATIONSITE = 0.15;
+    var CHANCE_OF_MOIST_FUNGICAVE = 0.5;
+    var CHANCE_OF_MOIST_LAKE = 0.75;
+
+    function HasFlagPersistent(flag) { // assume everything is unlocked
+      return true;
+    }
+
+    var biome_modifier_fog_of_war_clear_at_player = biome_modifiers.find(e => e.id == "FOG_OF_WAR_CLEAR_AT_PLAYER");
+    var biome_modifier_cosmetic_freeze = biome_modifiers.find(e => e.id == "FREEZING_COSMETIC");
+
+    function get_modifier( modifier_id ) {
+      return biome_modifiers.find(e => e.id == modifier_id);
+    }
+
+    function biome_modifier_applies_to_biome( modifier, biome_name ) {
+      if (!modifier) {
+        return false;
+      }
+
+      var ok = true;
+
+      if (modifier.requires_flag) {
+        if ( HasFlagPersistent( modifier.requires_flag ) == false ) {
+          return false;
+        }
+      }
+
+      if (modifier.does_not_apply_to_biome) {
+        for (var i = 0; i < modifier.does_not_apply_to_biome.length; i++) {
+          var skip_biome = modifier.does_not_apply_to_biome[i];
+          if (skip_biome == biome_name) {
+            ok = false;
+            break;
+          }
+        }
+      }
+
+      if (modifier.apply_only_to_biome) {
+        ok = false
+        for (var i = 0; i < modifier.apply_only_to_biome.length; i++) {
+          var required_biome = modifier.apply_only_to_biome[i];
+          if (required_biome == biome_name) {
+            ok = true;
+            break;
+          }
+        }
+      }
+
+      return ok;
+    }
+
+    function has_modifiers(biome_name, ctx) {
+      if (biome_name == "coalmine" && ctx.deaths < 8 && ctx.should_be_fully_deterministic == false) {
+        return false
+      }
+
+      var chance_of_modifier = CHANCE_OF_MODIFIER_PER_BIOME
+      if (biome_name == "coalmine") {
+        chance_of_modifier = CHANCE_OF_MODIFIER_COALMINE
+      } else if (biome_name == "excavationsite") {
+        chance_of_modifier = CHANCE_OF_MODIFIER_EXCAVATIONSITE
+      }
+
+      return random_next(ctx.rnd, 0.0, 1.0) <= chance_of_modifier;
+    }
+
+    var set_modifier_if_has_none = function( biome_name, modifier_id ) {
+      if (!result[biome_name]) {
+        result[biome_name] = get_modifier( modifier_id );
+      }
+    };
+
+
+    var rnd = random_create(347893,90734);
+    var ctx = { };
+    ctx.rnd = rnd;
+    ctx.deaths = 1000; //Number(StatsGlobalGetValue( "death_count" ));
+    ctx.should_be_fully_deterministic = false; //GameIsModeFullyDeterministic();
+
+    for (var i = 0; i < biomes.length; i++) {
+      var biome_names = biomes[i];
+      var modifier = null;
+      if (has_modifiers( biome_names[0], ctx)) {
+        modifier = pick_random_from_table_weighted( rnd, biome_modifiers );
+      }
+
+      for (var j = 0; j < biome_names.length; j++) {
+        var biome_name = biome_names[j];
+        if (biome_modifier_applies_to_biome( modifier, biome_name )) {
+          result[biome_name] = modifier;
+        }
+      }
+    }
+
+    // DEBUG - apply modifier to all biomes
+    /*
+    for (var i = 0; i < biomes.length; i++) {
+      var biome_names = biomes[i];
+      for (var j = 0; j < biome_names.length; j++) {
+        //var biome_name = biome_names[j];
+        //result[biome_name] = get_modifier( "GAS_FLOODED" );
+      }
+    }
+    */
+
+    if( random_next( rnd, 0.0, 1.0 ) < CHANCE_OF_MOIST_FUNGICAVE ) {
+      set_modifier_if_has_none( "fungicave", "MOIST" );
+    }
+
+    // force custom fog of war in these biomes
+    result["wandcave"] = biome_modifier_fog_of_war_clear_at_player;
+    result["wizardcave"] = biome_modifier_fog_of_war_clear_at_player;
+    result["alchemist_secret"] = biome_modifier_fog_of_war_clear_at_player;
+    //apply_modifier_if_has_none( "snowcave", "FREEZING" );
+
+    // side biomes
+    set_modifier_if_has_none( "mountain_top", "FREEZING" ); // NOTE: Freezing tends to occasionally bug out physics bodies, only put it in overworld biomes
+    set_modifier_if_has_none( "mountain_floating_island", "FREEZING" );
+    set_modifier_if_has_none( "winter", "FREEZING" );
+    result["winter_caves"] = biome_modifier_cosmetic_freeze;
+    //apply_modifier_if_has_none( "bridge", "FREEZING" )
+    //apply_modifier_if_has_none( "vault_frozen", "FREEZING" )
+
+    set_modifier_if_has_none( "lavalake", "HOT" );
+    set_modifier_if_has_none( "desert", "HOT" );
+    set_modifier_if_has_none( "pyramid_entrance", "HOT" );
+    set_modifier_if_has_none( "pyramid_left", "HOT" );
+    set_modifier_if_has_none( "pyramid_top", "HOT" );
+    set_modifier_if_has_none( "pyramid_right", "HOT" );
+
+    set_modifier_if_has_none( "watercave", "MOIST" );
+
+    if( random_next( rnd, 0.0, 1.0 ) < CHANCE_OF_MOIST_LAKE ) {
+      set_modifier_if_has_none( "lake_statue", "MOIST" );
+    }
+
+    return result;
+  }
+}
+
 class MaterialInfoProvider extends InfoProvider {
   async load() {
     this.materials = await this.loadAsync("data/materials.json");
@@ -581,6 +750,27 @@ class MaterialInfoProvider extends InfoProvider {
   }
 }
 
+class BiomeInfoProvider extends InfoProvider {
+  async load() {
+    this.biomes = await this.loadAsync("data/biome_names.json");
+  }
+  provide(biomeId) {
+    let found = this.biomes.find(e => e.id === biomeId);
+    if (found) return found;
+    console.warn("Could not find biome: " + biomeId);
+    return {
+      translated_name: biomeId
+    };
+  }
+  isPrimary(biomeId) {
+    let found = this.biomes.find(e => e.id === biomeId);
+    return found && found.translated_name !== "";
+  }
+  translate(biomeName) {
+    return this.provide(biomeName).translated_name;
+  }
+}
+
 const infoProviders = {
   RAIN: new RainInfoProvider,
   STARTING_FLASK: new StartingFlaskInfoProvider,
@@ -588,6 +778,8 @@ const infoProviders = {
   STARTING_BOMB_SPELL: new StartingBombSpellInfoProvider,
   PERK: new PerkInfoProvider,
   FUNGAL_SHIFT: new FungalInfoProvider,
+  BIOME_MODIFIER: new BiomeModifierInfoProvider,
+  BIOME: new BiomeInfoProvider,
   MATERIAL: new MaterialInfoProvider,
 };
 
@@ -684,6 +876,17 @@ class SeedRequirementFungalShift extends SeedRequirement {
       return false;
     }
     return checkShift(shifts[iterations - 1]);
+  }
+}
+
+class SeedRequirementBiomeModifier extends SeedRequirement {
+  constructor() {
+    super("BiomeModifier", "Biome Modifier");
+    this.provider = infoProviders.BIOME_MODIFIER;
+  }
+  test(biome, modifierId) {
+    let biomeModifiers = this.provider.provide();
+    return biomeModifiers[biome] && biomeModifiers[biome].id === modifierId;
   }
 }
 
@@ -835,6 +1038,28 @@ RequirementFungalShift.deserialize = function(str) {
   return req;
 }
 RequirementFungalShift.displayName = "Fungal Shift";
+const RequirementBiomeModifier = function() {
+  this.type = "BiomeModifier";
+  this.biome = "coalmine";
+  this.requirement = new SeedRequirementBiomeModifier();
+  this.modifier = this.requirement.provider.modifiers[0].id;
+};
+RequirementBiomeModifier.prototype.test = function() {
+  return this.requirement.test(this.biome, this.modifier);
+};
+RequirementBiomeModifier.prototype.textify = function() {
+  return "Have the biome modifier '" + this.modifier.replace(/_/g, " ").toLowerCase() + "' in " + infoProviders.BIOME.translate(this.biome);
+}
+RequirementBiomeModifier.prototype.serialize = function() {
+  return "bm-b" + this.biome + "-m" + this.modifier;
+}
+RequirementBiomeModifier.deserialize = function(str) {
+  if (!str.startsWith("bm")) return;
+  let req = new RequirementBiomeModifier();
+  [req.biome, req.modifier] = str.match(/^bm\-b(.+?)\-m(.+?)$/).slice(1);
+  return req;
+}
+RequirementBiomeModifier.displayName = "Biome Modifier";
 
 const AVAILABLE_REQUIREMENTS = [
   RequirementStartingFlask,
@@ -843,4 +1068,5 @@ const AVAILABLE_REQUIREMENTS = [
   RequirementRain,
   RequirementPerk,
   RequirementFungalShift,
+  RequirementBiomeModifier
 ];

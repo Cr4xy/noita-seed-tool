@@ -8,3 +8,10 @@
 .perk-active {
   background-color: hsla(var(--a)/var(--tw-bg-opacity,1));
 }
+.biome-modifier {
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+}
+.biome-modifier:nth-child(even) {
+  background-color: hsla(var(--b2)/var(--tw-bg-opacity,1));
+}

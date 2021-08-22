@@ -19,6 +19,7 @@ app = new Vue({
     showSeedCriteria: false,
     seedCriteria: [],
     availableRequirements: AVAILABLE_REQUIREMENTS,
+    //infoProviders: infoProviders,
     searchingSeed: false,
     seedSearchCount: 0,
 
@@ -88,6 +89,15 @@ app = new Vue({
     },
     translateMaterial(matName) {
       return infoProviders.MATERIAL.provide(matName).translated_name;
+    },
+    translateBiome(biomeId) {
+      return infoProviders.BIOME.provide(biomeId).translated_name;
+    },
+    translateModifier(modifierId) {
+      return modifierId.replace(/_/g, " ").toLowerCase();
+    },
+    isPrimaryBiome(biomeId) {
+      return infoProviders.BIOME.isPrimary(biomeId);
     },
     getMaterialColorHex(matName) {
       let color = infoProviders.MATERIAL.provide(matName).color;
@@ -182,6 +192,7 @@ app = new Vue({
         startingBombSpell: infoProviders.STARTING_BOMB_SPELL.provide(),
         perks: infoProviders.PERK.provide(this.pickedPerks, null, true, this.perkWorldOffset),
         fungalShifts: infoProviders.FUNGAL_SHIFT.provide(null, this.fungalHoldingFlasks),
+        biomeModifiers: infoProviders.BIOME_MODIFIER.provide()
       };
     },
     fungalHoldingFlaskAll() {
