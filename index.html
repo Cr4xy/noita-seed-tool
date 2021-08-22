@@ -242,9 +242,14 @@
         </div>
         <div class="flex flex-col inline-flex w-64 min-w-max">
           <h2>Biome Modifiers</h2>
-          <div v-for="(modifier, biome) in seedInfo.biomeModifiers" v-if="modifier && isPrimaryBiome(biome)" class="biome-modifier">
+          <div v-for="(modifier, biome) in seedInfo.biomeModifiers" v-if="modifier && isPrimaryBiome(biome)" class="biome-modifier relative w-full">
             {{ translateBiome(biome) }}
-            <div :style="{ backgroundImage: 'url(\'data:image/png;base64,' + modifier.ui_decoration_file + '\')' }" class="bg-center bg-contain bg-no-repeat h-16 flex items-center justify-center px-6 text-center capitalize" :title="modifier.ui_description">
+            <div class="absolute bottom-0 flex flex-row min-w-max w-full h-16">
+              <div class="w-20 bg-cover bg-no-repeat" :style="{ backgroundImage: 'url(\'data:image/png;base64,' + modifier.ui_decoration_file + '\')' }"></div>
+              <div class="w-full bg-cover bg-no-repeat" :style="{ backgroundImage: 'url(\'data:image/png;base64,' + modifier.ui_decoration_file + '\')', backgroundPositionX: '50%', backgroundSize: '200% 100%' }"></div>
+              <div class="w-20 bg-cover bg-no-repeat" :style="{ backgroundImage: 'url(\'data:image/png;base64,' + modifier.ui_decoration_file + '\')', backgroundPositionX: '100%' }"></div>
+            </div>
+            <div class="h-16 flex items-center justify-center px-14 text-center capitalize" :title="modifier.ui_description">
               {{ translateModifier(modifier.id) }}
             </div>
           </div>
