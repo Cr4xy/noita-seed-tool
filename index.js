@@ -1,4 +1,4 @@
-var worker;
+var workers;
 var app;
 
 function nthify(num) {
@@ -21,7 +21,8 @@ app = new Vue({
     availableRequirements: AVAILABLE_REQUIREMENTS,
     //infoProviders: infoProviders,
     searchingSeed: false,
-    seedSearchCount: 0,
+    searchUseAllCores: false,
+    seedSearchCounts: [],
 
     seedInfo: {
       rainType: null,
@@ -39,13 +40,17 @@ app = new Vue({
   methods: {
     searchSeed() {
       if (this.seed == 0) this.seed++;
-      this.seedSearchCount = 0;
-      worker.postMessage([this.seed, this.serializeSeedCriteria()]);
+      this.seedSearchCounts = [];
+      let crit = this.serializeSeedCriteria();
+      this.initWorkers();
+      for (let i = 0; i < workers.length; i++)
+        workers[i].postMessage([this.seed, i, workers.length, crit]);
       this.searchingSeed = true;
     },
     cancelSeedSearch() {
-      worker.terminate();
-      this.initWorker();
+      for (let i = 0; i < workers.length; i++)
+        workers[i].terminate();
+      this.workers = [];
       this.searchingSeed = false;
     },
     serializeSeedCriteria() {
@@ -155,17 +160,24 @@ app = new Vue({
         this.seed = seed;
       }
     },
-    initWorker() {
-      worker = new Worker("worker.js");
-      worker.addEventListener('message', e => {
-        let [type, value] = e.data;
-        if (type === 0) { // progress report
-          this.seedSearchCount = value;
-        } else { // found seed
-          this.seed = value;
-          this.searchingSeed = false;
-        }
-      });
+    initWorkers() {
+      workers = [];
+      let numCores = 1;
+      if (this.searchUseAllCores) numCores = navigator.hardwareConcurrency || 1;
+      for (let i = 0; i < numCores; i++) {
+        let worker = new Worker("worker.js");
+        workers.push(worker);
+        worker.addEventListener('message', e => {
+          let [id, type, value] = e.data;
+          if (type === 0) { // progress report
+            this.$set(this.seedSearchCounts, id, value);
+          } else { // found seed
+            this.seed = value;
+            //this.searchingSeed = false;
+            this.cancelSeedSearch();
+          }
+        });
+      }
     }
   },
   watch: {
@@ -222,13 +234,12 @@ app = new Vue({
       return str;
     },
     seedSearchCountStr() {
-      return this.seedSearchCount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      return this.seedSearchCounts.reduce((acc, val) => acc + val, 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     }
   },
   async created() {
     await Promise.all(loadingInfoProviders);
     this.parseURL();
     this.worked = true;
-    this.initWorker();
   }
 });

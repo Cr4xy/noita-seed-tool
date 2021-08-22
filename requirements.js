@@ -12,19 +12,23 @@ function GameHasFlagRun(flag) {
   return _G["FLAG_" + flag] != null
 }
 
-function emscripten_ready() {
-  SetWorldSeed = Module.cwrap('SetWorldSeed', null, ['number'])
-  SetRandomSeed = Module.cwrap('SetRandomSeed', null, ['number', 'number'])
-  Random = Module.cwrap('Random', "number", ['number', 'number'])
-  ProceduralRandomf = Module.cwrap('ProceduralRandomf', "number", ['number', 'number', 'number', 'number'])
-  ProceduralRandomi = Module.cwrap('ProceduralRandomi', "number", ['number', 'number', 'number', 'number'])
-}
+let noitaRandomPromise = new Promise(resolve => {
+  emscripten_ready = function() {
+    SetWorldSeed = Module.cwrap('SetWorldSeed', null, ['number']);
+    SetRandomSeed = Module.cwrap('SetRandomSeed', null, ['number', 'number']);
+    Random = Module.cwrap('Random', "number", ['number', 'number']);
+    ProceduralRandomf = Module.cwrap('ProceduralRandomf', "number", ['number', 'number', 'number', 'number']);
+    ProceduralRandomi = Module.cwrap('ProceduralRandomi', "number", ['number', 'number', 'number', 'number']);
+    resolve();
+  }
+});
 
-var loadingInfoProviders = [];
+// not technically a info provider, but required for basically every other info provider.
+var loadingInfoProviders = [noitaRandomPromise];
 
 class InfoProvider {
   constructor() {
-    loadingInfoProviders.push(this.load());
+    loadingInfoProviders.push(this.ready = this.load());
   }
   async load() {
 
@@ -784,17 +788,17 @@ const infoProviders = {
 };
 
 class SeedRequirement {
-  constructor(type, name, once) {
+  constructor(type, name, once, provider) {
     this.type = type;
     this.name = name;
     this.once = once;
+    this.provider = provider;
   }
 }
 
 class SeedRequirementStartingFlask extends SeedRequirement {
   constructor() {
-    super("StartingFlask", "Starting Flask", true);
-    this.provider = infoProviders.STARTING_FLASK;
+    super("StartingFlask", "Starting Flask", true, infoProviders.STARTING_FLASK);
   }
   test(mat) {
     return mat === this.provider.provide();
@@ -803,8 +807,7 @@ class SeedRequirementStartingFlask extends SeedRequirement {
 
 class SeedRequirementStartingSpell extends SeedRequirement {
   constructor() {
-    super("StartingSpell", "Starting Spell", true);
-    this.provider = infoProviders.STARTING_SPELL;
+    super("StartingSpell", "Starting Spell", true, infoProviders.STARTING_SPELL);
   }
   test(spell) {
     return spell === this.provider.provide();
@@ -813,8 +816,7 @@ class SeedRequirementStartingSpell extends SeedRequirement {
 
 class SeedRequirementStartingBombSpell extends SeedRequirement {
   constructor() {
-    super("StartingBombSpell", "Starting Bomb Spell", true);
-    this.provider = infoProviders.STARTING_BOMB_SPELL;
+    super("StartingBombSpell", "Starting Bomb Spell", true, infoProviders.STARTING_BOMB_SPELL);
   }
   test(spell) {
     return spell === this.provider.provide();
@@ -823,8 +825,7 @@ class SeedRequirementStartingBombSpell extends SeedRequirement {
 
 class SeedRequirementRain extends SeedRequirement {
   constructor() {
-    super("Rain", "Rain", true);
-    this.provider = infoProviders.RAIN;
+    super("Rain", "Rain", true, infoProviders.RAIN);
   }
   test(shouldRainMaterial) {
     let [rains, rainMaterial] = this.provider.provide();
@@ -835,8 +836,7 @@ class SeedRequirementRain extends SeedRequirement {
 
 class SeedRequirementPerk extends SeedRequirement {
   constructor() {
-    super("Perk", "Perk", true);
-    this.provider = infoProviders.PERK;
+    super("Perk", "Perk", false, infoProviders.PERK);
   }
   test(level, perk) {
     let perks = this.provider.provide(null, level);
@@ -852,8 +852,7 @@ class SeedRequirementPerk extends SeedRequirement {
 
 class SeedRequirementFungalShift extends SeedRequirement {
   constructor() {
-    super("FungalShift", "Fungal Shift");
-    this.provider = infoProviders.FUNGAL_SHIFT;
+    super("FungalShift", "Fungal Shift", false, infoProviders.FUNGAL_SHIFT);
   }
   test(iterations, fromMaterial, toMaterial, holdingFlasks) {
     let shifts = this.provider.provide(iterations, holdingFlasks);
@@ -881,12 +880,11 @@ class SeedRequirementFungalShift extends SeedRequirement {
 
 class SeedRequirementBiomeModifier extends SeedRequirement {
   constructor() {
-    super("BiomeModifier", "Biome Modifier");
-    this.provider = infoProviders.BIOME_MODIFIER;
+    super("BiomeModifier", "Biome Modifier", false, infoProviders.BIOME_MODIFIER);
   }
-  test(biome, modifierId) {
+  test(biome, modifier) {
     let biomeModifiers = this.provider.provide();
-    return biomeModifiers[biome] && biomeModifiers[biome].id === modifierId;
+    return biomeModifiers[biome] && biomeModifiers[biome].id === modifier;
   }
 }
 
@@ -986,7 +984,10 @@ const RequirementPerk = function() {
   this.type = "Perk";
   this.level = 1;
   this.requirement = new SeedRequirementPerk();
-  this.perk = this.requirement.provider.perks[0].id;
+  this.requirement.provider.ready.then(() => {
+    if (this.perk) return;
+    this.perk = this.requirement.provider.perks[0].id
+  });
 };
 RequirementPerk.prototype.test = function() {
   return this.requirement.test(this.level, this.perk);
@@ -1042,7 +1043,10 @@ const RequirementBiomeModifier = function() {
   this.type = "BiomeModifier";
   this.biome = "coalmine";
   this.requirement = new SeedRequirementBiomeModifier();
-  this.modifier = this.requirement.provider.modifiers[0].id;
+  this.requirement.provider.ready.then(() => {
+    if (this.modifier) return;
+    this.modifier = this.requirement.provider.modifiers[0].id;
+  });
 };
 RequirementBiomeModifier.prototype.test = function() {
   return this.requirement.test(this.biome, this.modifier);

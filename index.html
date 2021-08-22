@@ -180,11 +180,19 @@
                       <pre>Seed Criteria: {{ seedCriteriaText }}</pre>
                     </div>
                     <div class="flex-grow"></div>
-                    <div class="flex flex-col">
+                    <div class="flex flex-col w-36">
                       <div class="flex-grow"></div>
-                      <button class="btn btn-accent mb-2" @click="copySeedSearchLink">Copy Link</button>
-                      <button v-if="!searchingSeed" class="btn btn-secondary" @click="searchSeed">Search</button>
-                      <div v-else>
+                      <div class="text-right">
+                        <button class="btn btn-accent mb-2" @click="copySeedSearchLink">Copy Link</button>
+                      </div>
+                      <div v-if="!searchingSeed" class="text-right">
+                        <label class="cursor-pointer label">
+                          <span class="label-text">All CPU Cores</span>
+                          <input type="checkbox" checked="checked" class="checkbox" v-model="searchUseAllCores">
+                        </label>
+                        <button class="btn btn-secondary" @click="searchSeed">Search</button>
+                      </div>
+                      <div v-else class="text-right">
                         <div>
                           <span>Searched seeds:<br>{{ seedSearchCountStr }}</span>
                         </div>
