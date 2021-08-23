@@ -39,6 +39,9 @@ self.onmessage = function(e) {
       if (nextProgress <= now) {
         nextProgress = now + 500;
         self.postMessage([workerId, 0, seed - initialSeed]);
+        if (seed > 0x7ffffffd) {
+          return;
+        }
       }
     }
 
