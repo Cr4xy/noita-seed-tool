@@ -915,6 +915,10 @@ RequirementRain.displayName = "Rain";
 const RequirementStartingFlask = function() {
   this.type = "StartingFlask";
   this.requirement = new SeedRequirementStartingFlask();
+
+  // This is required so vue knows which properties are reactive
+  this.material = null;
+
   this.requirement.provider.ready.then(() => {
     if (this.material) return;
     this.material = this.requirement.provider.materials[0]
@@ -940,8 +944,12 @@ RequirementStartingFlask.displayName = "Starting Flask";
 const RequirementStartingSpell = function() {
   this.type = "StartingSpell";
   this.requirement = new SeedRequirementStartingSpell();
-  this.spells = this.requirement.provider.spells;
+
+  // This is required so vue knows which properties are reactive
+  this.spell = null;
+
   this.requirement.provider.ready.then(() => {
+    this.spells = this.requirement.provider.spells;
     if (this.spell) return;
     this.spell = this.spells[0];
   });
@@ -966,8 +974,12 @@ RequirementStartingSpell.displayName = "Starting Spell";
 const RequirementStartingBombSpell = function() {
   this.type = "StartingBombSpell";
   this.requirement = new SeedRequirementStartingBombSpell();
-  this.spells = this.requirement.provider.spells;
+
+  // This is required so vue knows which properties are reactive
+  this.spell = null;
+
   this.requirement.provider.ready.then(() => {
+    this.spells = this.requirement.provider.spells;
     if (this.spell) return;
     this.spell = this.spells[0];
   });
@@ -993,6 +1005,10 @@ const RequirementPerk = function() {
   this.type = "Perk";
   this.level = 1;
   this.requirement = new SeedRequirementPerk();
+
+  // This is required so vue knows which properties are reactive
+  this.perk = null;
+
   this.requirement.provider.ready.then(() => {
     if (this.perk) return;
     this.perk = this.requirement.provider.perks[0].id
@@ -1052,6 +1068,10 @@ const RequirementBiomeModifier = function() {
   this.type = "BiomeModifier";
   this.biome = "coalmine";
   this.requirement = new SeedRequirementBiomeModifier();
+
+  // This is required so vue knows which properties are reactive
+  this.modifier = null;
+
   this.requirement.provider.ready.then(() => {
     if (this.modifier) return;
     this.modifier = this.requirement.provider.modifiers[0].id;
