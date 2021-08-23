@@ -14,7 +14,6 @@ function nthify(num) {
 app = new Vue({
   el: "#app",
   data: {
-    worked: false,
     seed: 0,
     showSeedCriteria: false,
     seedCriteria: [],
@@ -240,6 +239,5 @@ app = new Vue({
   async created() {
     await Promise.all(loadingInfoProviders);
     this.parseURL();
-    this.worked = true;
   }
 });
