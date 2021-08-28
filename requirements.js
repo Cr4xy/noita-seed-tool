@@ -1103,3 +1103,25 @@ const AVAILABLE_REQUIREMENTS = [
   RequirementFungalShift,
   RequirementBiomeModifier
 ];
+
+function parseSeedCriteria(str) {
+  let result = [];
+  let parts = str.split(",");
+  let criteria;
+  let or;
+  for (let part of parts) {
+    or = false;
+    if (part.endsWith(";")) {
+      part = part.slice(0, -1);
+      or = true;
+    }
+    for (let critertaType of AVAILABLE_REQUIREMENTS) {
+      if (criteria = critertaType.deserialize(part)) {
+        criteria.or = or;
+        result.push(criteria);
+        break;
+      }
+    }
+  }
+  return result;
+}

@@ -30,11 +30,11 @@
         </label>
         <input type="number" placeholder="Seed" v-model="seed" class="input input-bordered" min="0">
         <label class="label">
-          <a href="javascript:void(0)" class="label-text-alt" @click="generateSeed">Random Seed</a> 
+          <a href="javascript:void(0)" class="label-text-alt" @click="generateSeed">Random Seed</a>
         </label>
       </div>
       <div class="collapse w-6/12 border rounded-box border-base-300 collapse-arrow" id="search-for-seed-container">
-        <input type="checkbox" v-model="showSeedCriteria"> 
+        <input type="checkbox" v-model="showSeedCriteria">
         <div class="collapse-title text-xl font-medium">
           Search for Seed
         </div> 
@@ -47,11 +47,15 @@
             </thead>
             <tbody>
               <tr v-for="(item, index) in seedCriteria" :key="index">
-                <td class="align-top">
+                <td class="align-top relative">
                   <select class="select select-bordered w-full max-w-xs" @change="e => changeCriteriaType(index, e.target.value)">
                     <option disabled="disabled">Choose a type</option> 
                     <option v-for="(req, i) in availableRequirements" :value="i" :selected="availableRequirements.indexOf(item.constructor) === i">{{ req.displayName }}</option> 
                   </select>
+                  <label class="btn btn-xs absolute -bottom-3 left-0 z-10 border-base-300" v-if="index + 1 < seedCriteria.length">
+                    <span class="label-text">or&nbsp;</span>
+                    <input type="checkbox" class="checkbox checkbox-xs" v-model="seedCriteria[index].or">
+                  </label>
                 </td>
                 <td>
                   <div v-if="item.type === 'StartingFlask'" class="whitespace-normal">
@@ -165,7 +169,16 @@
                   </div>
                 </td>
                 <td class="align-top text-right">
-                  <button class="btn btn-primary" @click="removeCriteria(index)">-</button>
+                  <button class="btn btn-sm btn-primary" @click="copyCriteria(index)">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                  </button>
+                  <button class="btn btn-sm btn-primary" @click="removeCriteria(index)">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </button>
                 </td>
               </tr>
             </tbody>

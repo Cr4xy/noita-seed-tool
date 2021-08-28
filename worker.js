@@ -8,29 +8,34 @@ self.onmessage = function(e) {
   seed += offset;
   let workerId = offset;
   let initialSeed = seed;
-  let parts = seedCriteriaStr.split(",");
-  let criteria;
-  let seedCriteria = [];
-  for (let part of parts) {
-    for (let critertaType of AVAILABLE_REQUIREMENTS) {
-      if (criteria = critertaType.deserialize(part)) {
-        seedCriteria.push(criteria);
-        break;
-      }
-    }
-  }
+  let seedCriteria = parseSeedCriteria(seedCriteriaStr);
 
   Promise.all(loadingInfoProviders).then(() => {
     let now = Date.now();
     let nextProgress = now;
     let success;
+    let orOk;
     while (true) {
       SetWorldSeed(seed);
       success = true;
+      orOk = false;
       for (let criteria of seedCriteria) {
+        if (orOk) {
+          if (!criteria.or) {
+            orOk = false;
+          }
+          continue;
+        }
         if (!criteria.test()) {
+          if (criteria.or) {
+            orOk = false;
+            continue;
+          }
           success = false;
           break;
+        }
+        if (criteria.or) {
+          orOk = true;
         }
       }
       if (success) break;

@@ -165,7 +165,7 @@ extern "C"
         return Random(a, b);
     }
 
-    double ProceduralRandomi(double x, double y, double a, double b) {
+    int ProceduralRandomi(double x, double y, double a, double b) {
         SetRandomSeed(x, y);
         return (int)Random(a, b);
     }

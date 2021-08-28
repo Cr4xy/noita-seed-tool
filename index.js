@@ -53,7 +53,7 @@ app = new Vue({
       this.searchingSeed = false;
     },
     serializeSeedCriteria() {
-      return this.seedCriteria.map(e => e.serialize()).join()
+      return this.seedCriteria.map(e => e.serialize() + (e.or ? ";" : "")).join()
     },
     copySeedSearchLink() {
       let url = new URL(document.URL);
@@ -63,16 +63,8 @@ app = new Vue({
     parseSeedSearchLink() {
       let str = new URL(document.URL).searchParams.get("search");
       if (!str) return;
-      let parts = str.split(",");
-      let criteria;
-      for (let part of parts) {
-        for (let critertaType of this.availableRequirements) {
-          if (criteria = critertaType.deserialize(part)) {
-            this.seedCriteria.push(criteria);
-            break;
-          }
-        }
-      }
+      let criteria = parseSeedCriteria(str);
+      if (criteria) this.seedCriteria = criteria;
       return true;
     },
     generateSeed() {
@@ -88,8 +80,15 @@ app = new Vue({
       this.$set(this.seedCriteria, index, new this.availableRequirements[i]());
       //this.$forceUpdate();
     },
+    copyCriteria(index) {
+      let criteria = this.seedCriteria[index];
+      let newCriteria = criteria.constructor.deserialize(criteria.serialize());
+      //if (criteria.or) this.seedCriteria[this.seedCriteria.length - 1].or = true;
+      this.seedCriteria.push(newCriteria);
+    },
     removeCriteria(index) {
       this.seedCriteria.splice(index, 1);
+      this.seedCriteria[this.seedCriteria.length - 1].or = false;
     },
     translateMaterial(matName) {
       return infoProviders.MATERIAL.provide(matName).translated_name;
@@ -228,7 +227,7 @@ app = new Vue({
     seedCriteriaText() {
       let str = "\n";
       for (let i = 0; i < this.seedCriteria.length; i++) {
-        str += "- " + this.seedCriteria[i].textify() + "\n";
+        str += "- " + this.seedCriteria[i].textify() + (this.seedCriteria[i].or ? " OR:" : "") + "\n";
       }
       return str;
     },
