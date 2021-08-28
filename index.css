@@ -15,3 +15,7 @@
 .biome-modifier:nth-child(even) {
   background-color: hsla(var(--b2)/var(--tw-bg-opacity,1));
 }
+.lbl-holding-flask {
+  padding-top: 0;
+  padding-bottom: 0;
+}

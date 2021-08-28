@@ -105,7 +105,7 @@
                       Perk
                       <select class="select select-bordered w-full max-w-xs" v-model="seedCriteria[index].perk">
                         <option disabled="disabled" selected="selected">Choose a perk</option>
-                        <option v-for="(perk, i) in item.requirement.provider.perks" :value="perk.id" :key="perk.id">{{ perk.ui_name }}</option> 
+                        <option v-for="(perk, i) in sortedPerks" :value="perk.id" :key="perk.id">{{ perk.ui_name }}</option> 
                       </select>
                     </label>
                   </div>
@@ -241,7 +241,7 @@
               <div class="capitalize" :style="{ backgroundColor: getMaterialColorHex(shift[1]) }">{{ translateMaterial(shift[1]) }}</div>
             </div>
             <div class="form-control">
-              <label class="label">
+              <label class="label lbl-holding-flask">
                 <input type="checkbox" checked="checked" class="checkbox" v-model="fungalHoldingFlasks[level]">
               </label>
             </div>

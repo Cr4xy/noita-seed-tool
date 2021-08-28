@@ -234,6 +234,9 @@ app = new Vue({
     },
     seedSearchCountStr() {
       return this.seedSearchCounts.reduce((acc, val) => acc + val, 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    },
+    sortedPerks() {
+      return infoProviders.PERK.perks.slice(0).sort((a, b) => a.ui_name.localeCompare(b.ui_name))
     }
   },
   async created() {
