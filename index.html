@@ -219,7 +219,7 @@
         </div>
       </div>
       <div class="flex flex-row" v-if="seed > 0">
-        <div class="flex flex-col inline-flex w-64">
+        <div class="flex flex-col inline-flex w-72">
           <h2><!--<img :src="'data:image/png;base64,' + infoProviders.PERK.perks.find(e => e.id === 'EXTRA_PERK').ui_icon" class="w-16 h-16" style="image-rendering: pixelated"> -->Perks</h2>
           <div class="p-4">
             <div class="w-full flex flex-row justify-between">
@@ -227,9 +227,14 @@
               <span class="block capitalize">{{ perkWorldOffsetText }}</span>
               <button class="btn btn-sm w-4 block" @click="perksGoEast">&gt;</button>
             </div>
-            <div class="flex flex-row justify-between" v-for="(perkList, level) in seedInfo.perks">
-              <div v-for="(perk, index) in perkList" :title="perk.ui_name" :class="['cursor-pointer', 'perk', pickedPerks[level] === perk.id ? 'perk-active' : '']" @click="onClickPerk(level, perk.id)">
+            <div class="flex flex-row justify-between items-center" v-for="(perkList, level) in seedInfo.perks">
+              <div v-for="(perk, index) in perkList" :title="perk.ui_name" :class="['cursor-pointer', 'perk', pickedPerks[perkWorldOffset]?.[level] === perk.id ? 'perk-active' : '']" @click="onClickPerk(level, perk.id)">
                 <img :src="'data:image/png;base64,' + perk.ui_icon" class="w-16 h-16">
+              </div>
+              <div class="btn btn-ghost w-16 h-16" title="Reroll: right-click to unroll" @click="increasePerkRerolls(level)" @contextmenu.prevent="decreasePerkRerolls(level)">
+                <div class="perk-reroll text-right w-full h-full">
+                  <span v-show="perkRerolls[perkWorldOffset]?.[level] > 0">{{ perkRerolls[perkWorldOffset]?.[level] }}</span>
+                </div>
               </div>
             </div>
           </div>

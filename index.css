@@ -8,6 +8,12 @@
 .perk-active {
   background-color: hsla(var(--a)/var(--tw-bg-opacity,1));
 }
+.perk-reroll {
+  background: url('img/perk_reroll.png') center -17px/contain no-repeat;
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  user-select: none;
+}
 .biome-modifier {
   image-rendering: pixelated;
   image-rendering: -moz-crisp-edges;

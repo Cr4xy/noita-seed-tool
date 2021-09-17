@@ -32,6 +32,7 @@ app = new Vue({
     },
 
     pickedPerks: [],
+    perkRerolls: [],
     perkWorldOffset: 0,
     fungalHoldingFlaskAll: false,
     fungalHoldingFlasks: new Array(20).fill(false)
@@ -104,41 +105,54 @@ app = new Vue({
     },
     getMaterialColorHex(matName) {
       let color = infoProviders.MATERIAL.provide(matName).color;
-      let r = color & 0x0000ff;
+      let r = color & 0xff0000;
       let g = color & 0x00ff00;
-      let b = color & 0xff0000;
-      r = r << 16;
-      b = b >> 16;
-      //console.log(matName, "#" + (r + g + b).toString(16), r, g, b, color);
+      let b = color & 0x0000ff;
+      r >>= 16;
+      b <<= 16;
       let rgbHex = (r + g + b).toString(16);
       return "#" + "000000".substr(rgbHex.length) + rgbHex;
     },
     perksGoEast() {
       this.perkWorldOffset++;
-      this.seedInfo.perks = infoProviders.PERK.provide(this.pickedPerks, null, true, this.perkWorldOffset);
+      this.seedInfo.perks = infoProviders.PERK.provide(this.pickedPerks, null, true, this.perkWorldOffset, this.perkRerolls);
     },
     perksGoWest() {
       this.perkWorldOffset--;
-      this.seedInfo.perks = infoProviders.PERK.provide(this.pickedPerks, null, true, this.perkWorldOffset);
+      this.seedInfo.perks = infoProviders.PERK.provide(this.pickedPerks, null, true, this.perkWorldOffset, this.perkRerolls);
     },
     onClickPerk(level, perkId) {
-      if (this.pickedPerks[level] === perkId) {
-        delete this.pickedPerks[level];
+      if (!this.pickedPerks[this.perkWorldOffset]) this.pickedPerks[this.perkWorldOffset] = [];
+      if (this.pickedPerks[this.perkWorldOffset][level] === perkId) {
+        delete this.pickedPerks[this.perkWorldOffset][level];
       } else {
-        this.pickedPerks[level] = perkId;
+        //this.pickedPerks[this.perkWorldOffset][level] = perkId;
+        this.$set(this.pickedPerks[this.perkWorldOffset], level, perkId);
       }
       let changed;
       do {
         changed = false
-        this.seedInfo.perks = infoProviders.PERK.provide(this.pickedPerks, null, true, this.perkWorldOffset);
-        for (let i = 0; i < this.pickedPerks.length; i++) {
-          if (this.pickedPerks[i] && !this.seedInfo.perks[i].some(e => e.id === this.pickedPerks[i])) {
-            delete this.pickedPerks[i];
+        this.seedInfo.perks = infoProviders.PERK.provide(this.pickedPerks, null, true, this.perkWorldOffset, this.perkRerolls);
+        for (let i = 0; i < this.pickedPerks[this.perkWorldOffset].length; i++) {
+          if (this.pickedPerks[this.perkWorldOffset][i] && !this.seedInfo.perks[i].some(e => e.id === this.pickedPerks[this.perkWorldOffset][i])) {
+            delete this.pickedPerks[this.perkWorldOffset][i];
             changed = true;
             break;
           }
         }
       } while (changed);
+    },
+    increasePerkRerolls(level) {
+      if (!this.perkRerolls[this.perkWorldOffset]) this.$set(this.perkRerolls, this.perkWorldOffset, []);
+      if (isNaN(this.perkRerolls[this.perkWorldOffset][level])) this.perkRerolls[this.perkWorldOffset][level] = 0;
+      this.$set(this.perkRerolls[this.perkWorldOffset], level, this.perkRerolls[this.perkWorldOffset][level] + 1);
+      this.seedInfo.perks = infoProviders.PERK.provide(this.pickedPerks, null, true, this.perkWorldOffset, this.perkRerolls);
+    },
+    decreasePerkRerolls(level) {
+      if (!this.perkRerolls[this.perkWorldOffset]) this.$set(this.perkRerolls, this.perkWorldOffset, []);
+      if (isNaN(this.perkRerolls[this.perkWorldOffset][level])) this.perkRerolls[this.perkWorldOffset][level] = 0;
+      this.$set(this.perkRerolls[this.perkWorldOffset], level, Math.max(0, this.perkRerolls[this.perkWorldOffset][level] - 1));
+      this.seedInfo.perks = infoProviders.PERK.provide(this.pickedPerks, null, true, this.perkWorldOffset, this.perkRerolls);
     },
     copyString(str) {
       let txtCopy = document.createElement('input');
@@ -182,6 +196,7 @@ app = new Vue({
     seed(val, oldVal) {
       this.perkWorldOffset = 0;
       this.pickedPerks = [];
+      this.perkRerolls = [];
       //this.fungalHoldingFlaskAll = false;
       let url = new URL(document.URL);
       if (this.seed)
@@ -206,7 +221,7 @@ app = new Vue({
         startingFlask: infoProviders.STARTING_FLASK.provide(),
         startingSpell: infoProviders.STARTING_SPELL.provide(),
         startingBombSpell: infoProviders.STARTING_BOMB_SPELL.provide(),
-        perks: infoProviders.PERK.provide(this.pickedPerks, null, true, this.perkWorldOffset),
+        perks: infoProviders.PERK.provide(this.pickedPerks, null, true, this.perkWorldOffset, this.perkRerolls),
         fungalShifts: infoProviders.FUNGAL_SHIFT.provide(null, this.fungalHoldingFlasks),
         biomeModifiers: infoProviders.BIOME_MODIFIER.provide()
       };
