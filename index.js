@@ -18,7 +18,6 @@ app = new Vue({
     showSeedCriteria: false,
     seedCriteria: [],
     availableRequirements: AVAILABLE_REQUIREMENTS,
-    //infoProviders: infoProviders,
     searchingSeed: false,
     searchUseAllCores: false,
     seedSearchCounts: [],
@@ -30,6 +29,8 @@ app = new Vue({
       perks: null,
       fungalShifts: null
     },
+
+    displayPerkDeck: false,
 
     pickedPerks: [],
     perkRerolls: [],
@@ -112,6 +113,12 @@ app = new Vue({
       b <<= 16;
       let rgbHex = (r + g + b).toString(16);
       return "#" + "000000".substr(rgbHex.length) + rgbHex;
+    },
+    showPerkDeck() {
+      this.displayPerkDeck = true;
+    },
+    hidePerkDeck() {
+      this.displayPerkDeck = false;
     },
     perksGoEast() {
       this.perkWorldOffset++;
@@ -222,6 +229,7 @@ app = new Vue({
         startingSpell: infoProviders.STARTING_SPELL.provide(),
         startingBombSpell: infoProviders.STARTING_BOMB_SPELL.provide(),
         perks: infoProviders.PERK.provide(this.pickedPerks, null, true, this.perkWorldOffset, this.perkRerolls),
+        perkDeck: infoProviders.PERK.getPerkDeck(true),
         fungalShifts: infoProviders.FUNGAL_SHIFT.provide(null, this.fungalHoldingFlasks),
         biomeModifiers: infoProviders.BIOME_MODIFIER.provide()
       };

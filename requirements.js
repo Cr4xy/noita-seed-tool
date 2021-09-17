@@ -287,7 +287,7 @@ class PerkInfoProvider extends InfoProvider {
     }
     return result;
   }
-  getPerkDeck() {
+  getPerkDeck(returnPerkObjects) {
     let perk_list = this.perks;
 
     var shuffle_table = function( t ) {
@@ -434,7 +434,13 @@ class PerkInfoProvider extends InfoProvider {
       
       return perk_deck;
     }
-    return perk_get_spawn_order();
+    let result = perk_get_spawn_order();
+    if (returnPerkObjects) {
+      for (let i = 0; i < result.length; i++) {
+        result[i] = this.perks.find(f => f.id === result[i]);
+      }
+    }
+    return result;
   }
   provide(perkPicks, maxLevels, returnPerkObjects, worldOffset, rerolls) {
     let getPerks = (perkPicks, maxLevels, worldOffset) => {

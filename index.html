@@ -7,7 +7,7 @@
   <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.1/dist/tailwind.min.css" rel="stylesheet" type="text/css" />
   <link href="https://cdn.jsdelivr.net/npm/@tailwindcss/typography@0.4.x/dist/typography.min.css" rel="stylesheet" type="text/css" />
-  <link href="https://cdn.jsdelivr.net/npm/daisyui@1.11.0/dist/full.css" rel="stylesheet" type="text/css" />
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@1.14.0/dist/full.css" rel="stylesheet" type="text/css" />
   <link href="index.css" rel="stylesheet" type="text/css" />
   <script src="lib/noita_random.js"></script>
   <script src="scripts/random.js"></script>
@@ -24,6 +24,21 @@
   <div class="md:container md:mx-auto p-4">
     <h1 class="prose lg:prose-xl">Noita Seed Tool</h1>
     <div id="app">
+      <div :class="['modal', displayPerkDeck ? 'modal-open' : '']">
+        <div class="modal-box" style="max-width: 64rem">
+          <h1 class="prose prose-sm lg:prose-lg">Perk Deck</h1>
+          <div class="divider" style="margin-top: 0.5rem; margin-bottom: 0.5rem;"></div>
+          <div class="flex flex-row items-center flex-wrap">
+            <div v-for="(perk, index) in seedInfo.perkDeck" :title="perk.ui_name" class="perk">
+              <img :src="'data:image/png;base64,' + perk.ui_icon" class="w-16 h-16">
+            </div>
+            <div class="flex-grow"></div>
+            <div class="modal-action">
+              <a class="btn btn-primary" @click="hidePerkDeck">Close</a>
+            </div>
+          </div>
+        </div>
+      </div>
       <div class="form-control w-64">
         <label class="label">
           <span class="label-text">Seed</span>
@@ -220,7 +235,7 @@
       </div>
       <div class="flex flex-row" v-if="seed > 0">
         <div class="flex flex-col inline-flex w-72">
-          <h2><!--<img :src="'data:image/png;base64,' + infoProviders.PERK.perks.find(e => e.id === 'EXTRA_PERK').ui_icon" class="w-16 h-16" style="image-rendering: pixelated"> -->Perks</h2>
+          <h2>Perks (<a href="javascript:void(0)" class="link link-hover" @click="showPerkDeck">show deck</a>)</h2>
           <div class="p-4">
             <div class="w-full flex flex-row justify-between">
               <button class="btn btn-sm w-4 block" @click="perksGoWest">&lt;</button>
