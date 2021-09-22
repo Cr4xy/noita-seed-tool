@@ -25,3 +25,18 @@
   padding-top: 0;
   padding-bottom: 0;
 }
+@media (max-width: 768px) {
+  .seed-criteria {
+    display: block;
+  }
+  td.seed-critera-left {
+    padding-right: 0.25rem;
+  }
+  td.seed-critera-middle {
+    padding-right: 0.25rem;
+    padding-left: 0.25rem;
+  }
+  td.seed-critera-right {
+    padding-left: 0.25rem;
+  }
+}

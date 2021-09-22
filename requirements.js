@@ -199,28 +199,11 @@ class PerkInfoProvider extends InfoProvider {
     this.perks = await this.loadAsync("data/perks.json");
     this.temples = await this.loadAsync("data/temple-locations.json");
   }
-  /*
-  getRerolls(perkPicks, maxLevels, returnPerkObjects, worldOffset, rerolls) {
-    var perkDeck = this.getPerkDeck();
-    var perks = this.provide(perkPicks, maxLevels, returnPerkObjects, worldOffset, );
-    var result = [];
-    for (var i = 0; i < rerolls.length; i++) {
-      for (var j = 0; j < rerolls[j] - 1; j++) {
-        this._getReroll(perkDeck, perks[i].length);
-      }
-      result.push(this._getReroll(perkDeck, perks[i].length));
-    }
-    return result;
-  }
-  */
   _getReroll(perkDeck, amountOfPerks) {
     var perks = perkDeck;
     var perk_count = amountOfPerks;
     let perk_reroll_perks = () => {
       let result = [];
-      var perk_reroll_count = Number( GlobalsGetValue( "TEMPLE_PERK_REROLL_COUNT", "0" ) );
-      perk_reroll_count++;
-      GlobalsSetValue( "TEMPLE_PERK_REROLL_COUNT", String( perk_reroll_count ) );
 
       for (var i = 0; i < perk_count; i++) {
         var next_perk_index = Number( GlobalsGetValue( "TEMPLE_REROLL_PERK_INDEX", String(perks.length - 1) ) );
