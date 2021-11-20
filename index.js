@@ -55,7 +55,7 @@ app = new Vue({
       this.searchingSeed = false;
     },
     serializeSeedCriteria() {
-      return this.seedCriteria.map(e => e.serialize() + (e.or ? ";" : "")).join()
+      return this.seedCriteria.map(e => (e.not ? "!" : "") + e.serialize() + (e.or ? ";" : "")).join()
     },
     copySeedSearchLink() {
       let url = new URL(document.URL);
@@ -86,6 +86,7 @@ app = new Vue({
       let criteria = this.seedCriteria[index];
       let newCriteria = criteria.constructor.deserialize(criteria.serialize());
       //if (criteria.or) this.seedCriteria[this.seedCriteria.length - 1].or = true;
+      newCriteria.not = criteria.not;
       this.seedCriteria.push(newCriteria);
     },
     removeCriteria(index) {
@@ -250,7 +251,8 @@ app = new Vue({
     seedCriteriaText() {
       let str = "\n";
       for (let i = 0; i < this.seedCriteria.length; i++) {
-        str += "- " + this.seedCriteria[i].textify() + (this.seedCriteria[i].or ? " OR:" : "") + "\n";
+        let criteria = this.seedCriteria[i];
+        str += "- " + (criteria.not ? "DON'T " : "") + criteria.textify() + (criteria.or ? " OR:" : "") + "\n";
       }
       return str;
     },

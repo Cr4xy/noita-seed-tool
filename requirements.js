@@ -1141,8 +1141,14 @@ function parseSeedCriteria(str) {
   let parts = str.split(",");
   let criteria;
   let or;
+  let not;
   for (let part of parts) {
     or = false;
+    not = false;
+    if (part.startsWith("!")) {
+      part = part.slice(1);
+      not = true;
+    }
     if (part.endsWith(";")) {
       part = part.slice(0, -1);
       or = true;
@@ -1150,6 +1156,7 @@ function parseSeedCriteria(str) {
     for (let critertaType of AVAILABLE_REQUIREMENTS) {
       if (criteria = critertaType.deserialize(part)) {
         criteria.or = or;
+        criteria.not = not;
         result.push(criteria);
         break;
       }

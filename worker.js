@@ -15,6 +15,7 @@ self.onmessage = function(e) {
     let nextProgress = now;
     let success;
     let orOk;
+    let test;
     while (true) {
       SetWorldSeed(seed);
       success = true;
@@ -26,7 +27,8 @@ self.onmessage = function(e) {
           }
           continue;
         }
-        if (!criteria.test()) {
+        test = criteria.test();
+        if (criteria.not && test || !criteria.not && !test) {
           if (criteria.or) {
             orOk = false;
             continue;

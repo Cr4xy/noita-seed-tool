@@ -61,8 +61,8 @@
               <th></th>
             </thead>
             <tbody class="block">
-              <tr v-for="(item, index) in seedCriteria" :key="index" class="seed-criteria">
-                <td class="align-top relative seed-critera-left">
+              <tr v-for="(item, index) in seedCriteria" :key="index" class="seed-criteria relative">
+                <td class="align-top  seed-critera-left">
                   <select class="select select-bordered w-full max-w-xs" @change="e => changeCriteriaType(index, e.target.value)">
                     <option disabled="disabled">Choose a type</option> 
                     <option v-for="(req, i) in availableRequirements" :value="i" :selected="availableRequirements.indexOf(item.constructor) === i">{{ req.displayName }}</option> 
@@ -70,6 +70,10 @@
                   <label class="btn btn-xs absolute -bottom-3 left-0 z-10 border-base-300" v-if="index + 1 < seedCriteria.length">
                     <span class="label-text">or&nbsp;</span>
                     <input type="checkbox" class="checkbox checkbox-xs" v-model="seedCriteria[index].or">
+                  </label>
+                  <label class="btn btn-xs absolute -top-3 right-0 z-10 border-base-300">
+                    <span class="label-text">not&nbsp;</span>
+                    <input type="checkbox" class="checkbox checkbox-xs" v-model="seedCriteria[index].not">
                   </label>
                 </td>
                 <td class="seed-critera-middle">
