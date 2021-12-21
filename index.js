@@ -44,8 +44,9 @@ app = new Vue({
       this.seedSearchCounts = [];
       let crit = this.serializeSeedCriteria();
       this.initWorkers();
+      let startSeed = this.seed + 1;
       for (let i = 0; i < workers.length; i++)
-        workers[i].postMessage([this.seed, i, workers.length, crit]);
+        workers[i].postMessage([startSeed, i, workers.length, crit]);
       this.searchingSeed = true;
     },
     cancelSeedSearch() {
