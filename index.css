@@ -8,6 +8,10 @@
 .perk-active {
   background-color: hsla(var(--a)/var(--tw-bg-opacity,1));
 }
+.perk-gambled {
+  background-color: hsla(var(--wa)/var(--tw-bg-opacity,1));
+  cursor: default;
+}
 .perk-reroll {
   background: url('img/perk_reroll.png') center -17px/contain no-repeat;
   image-rendering: pixelated;

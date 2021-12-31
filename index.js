@@ -130,7 +130,9 @@ app = new Vue({
       this.perkWorldOffset--;
       this.seedInfo.perks = infoProviders.PERK.provide(this.pickedPerks, null, true, this.perkWorldOffset, this.perkRerolls);
     },
-    onClickPerk(level, perkId) {
+    onClickPerk(level, perk) {
+      if (perk.gambled) return;
+      let perkId = perk.id;
       if (!this.pickedPerks[this.perkWorldOffset]) this.pickedPerks[this.perkWorldOffset] = [];
       if (this.pickedPerks[this.perkWorldOffset][level] === perkId) {
         delete this.pickedPerks[this.perkWorldOffset][level];
@@ -140,7 +142,7 @@ app = new Vue({
       }
       let changed;
       do {
-        changed = false
+        changed = false;
         this.seedInfo.perks = infoProviders.PERK.provide(this.pickedPerks, null, true, this.perkWorldOffset, this.perkRerolls);
         for (let i = 0; i < this.pickedPerks[this.perkWorldOffset].length; i++) {
           if (this.pickedPerks[this.perkWorldOffset][i] && !this.seedInfo.perks[i].some(e => e.id === this.pickedPerks[this.perkWorldOffset][i])) {

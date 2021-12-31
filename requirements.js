@@ -239,11 +239,11 @@ class PerkInfoProvider extends InfoProvider {
   get_perk_picked_flag_name( perk_id ) {
     return "PERK_PICKED_" + perk_id
   }
-  perk_spawn_many( perks, x, y ) {
+  perk_spawn_many( perks, x, y, perkCount ) {
     let result = [];
     let perk_count = parseFloat( GlobalsGetValue( "TEMPLE_PERK_COUNT", "3" ) )
 
-    let count = perk_count;
+    let count = perkCount ?? perk_count;
 
     for (let i = 0; i < count; i++) {
       let next_perk_index = parseFloat( GlobalsGetValue( "TEMPLE_NEXT_PERK_INDEX", "0" ) );
@@ -435,8 +435,10 @@ class PerkInfoProvider extends InfoProvider {
       let perkDeck = this.getPerkDeck();
 
       let result = [];
+      let gambles = [];
       let i, world = 0;
-      GlobalsSetValue("TEMPLE_PERK_COUNT", "3")
+      let o = 0;
+      GlobalsSetValue("TEMPLE_PERK_COUNT", "3");
       let temple_locations = this.temples;
       while (true) {
         i = 0;
@@ -462,16 +464,34 @@ class PerkInfoProvider extends InfoProvider {
               result.push(res);
             }
           }
-          let picked_perk = perkPicks[world]?.[i]
+          let picked_perk = perkPicks[world]?.[i];
           if (picked_perk) {
             var flag_name = this.get_perk_picked_flag_name(picked_perk);
             GameAddFlagRun(flag_name);
             GlobalsSetValue( flag_name + "_PICKUP_COUNT", Number(GlobalsGetValue( flag_name + "_PICKUP_COUNT", "0" )) + 1 );
             if (picked_perk == "EXTRA_PERK") {
               GlobalsSetValue("TEMPLE_PERK_COUNT", parseFloat(GlobalsGetValue("TEMPLE_PERK_COUNT")) + 1)
+            } else if (picked_perk == "GAMBLE") {
+              let gambledPerks = this.perk_spawn_many(perkDeck, loc.x + offsetX, loc.y + offsetY, 2);
+              while (gambledPerks.indexOf("GAMBLE") >= 0) {
+                let idx = gambledPerks.indexOf("GAMBLE");
+                let moreGambledPerks = this.perk_spawn_many(perkDeck, loc.x + offsetX, loc.y + offsetY, 1);
+                gambledPerks.splice(idx, 1, moreGambledPerks[0]);
+              }
+              for (let j = 0; j < gambledPerks.length; j++) {
+                let gambledPerk = gambledPerks[j];
+                // if (gambledPerk == "GAMBLE") continue;
+                var flag_name = this.get_perk_picked_flag_name(gambledPerk);
+                GameAddFlagRun(flag_name);
+                GlobalsSetValue( flag_name + "_PICKUP_COUNT", Number(GlobalsGetValue( flag_name + "_PICKUP_COUNT", "0" )) + 1 );
+                let index = res.indexOf(picked_perk);
+                res.splice(index + 1 + j, 0, gambledPerk);
+                gambles[o + index + 1 + j] = true;
+              }
             }
           }
           i++;
+          o += res.length;
         }
         if (world == worldOffset) break;
         if (worldOffset < 0) world--;
@@ -479,8 +499,15 @@ class PerkInfoProvider extends InfoProvider {
       }
       //console.log(_G)
       if (returnPerkObjects) {
+        let o = 0;
         for (let i = 0; i < result.length; i++) {
           result[i] = result[i].map(e => this.perks.find(f => f.id === e));
+          for (let j = 0; j < result[i].length; j++) {
+            if (gambles[o]) {
+              result[i][j] = Object.assign({gambled: true}, result[i][j]);
+            }
+            o++;
+          }
         }
       }
       return result;
