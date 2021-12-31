@@ -470,7 +470,7 @@ class PerkInfoProvider extends InfoProvider {
             GameAddFlagRun(flag_name);
             GlobalsSetValue( flag_name + "_PICKUP_COUNT", Number(GlobalsGetValue( flag_name + "_PICKUP_COUNT", "0" )) + 1 );
             if (picked_perk == "EXTRA_PERK") {
-              GlobalsSetValue("TEMPLE_PERK_COUNT", parseFloat(GlobalsGetValue("TEMPLE_PERK_COUNT")) + 1)
+              GlobalsSetValue("TEMPLE_PERK_COUNT", parseFloat(GlobalsGetValue("TEMPLE_PERK_COUNT")) + 1);
             } else if (picked_perk == "GAMBLE") {
               let gambledPerks = this.perk_spawn_many(perkDeck, loc.x + offsetX, loc.y + offsetY, 2);
               while (gambledPerks.indexOf("GAMBLE") >= 0) {
@@ -484,6 +484,9 @@ class PerkInfoProvider extends InfoProvider {
                 var flag_name = this.get_perk_picked_flag_name(gambledPerk);
                 GameAddFlagRun(flag_name);
                 GlobalsSetValue( flag_name + "_PICKUP_COUNT", Number(GlobalsGetValue( flag_name + "_PICKUP_COUNT", "0" )) + 1 );
+                if (gambledPerk == "EXTRA_PERK") {
+                  GlobalsSetValue("TEMPLE_PERK_COUNT", parseFloat(GlobalsGetValue("TEMPLE_PERK_COUNT")) + 1);
+                }
                 let index = res.indexOf(picked_perk);
                 res.splice(index + 1 + j, 0, gambledPerk);
                 gambles[o + index + 1 + j] = true;
