@@ -124,11 +124,11 @@ app = new Vue({
     },
     perksGoEast() {
       this.perkWorldOffset++;
-      this.seedInfo.perks = infoProviders.PERK.provide(this.pickedPerks, null, true, this.perkWorldOffset, this.perkRerolls);
+      this.seedInfo.perks = infoProviders.PERK.provide(this.pickedPerks, null, this.perkWorldOffset, this.perkRerolls);
     },
     perksGoWest() {
       this.perkWorldOffset--;
-      this.seedInfo.perks = infoProviders.PERK.provide(this.pickedPerks, null, true, this.perkWorldOffset, this.perkRerolls);
+      this.seedInfo.perks = infoProviders.PERK.provide(this.pickedPerks, null, this.perkWorldOffset, this.perkRerolls);
     },
     onClickPerk(level, perk) {
       if (perk.gambled) return;
@@ -143,9 +143,9 @@ app = new Vue({
       let changed;
       do {
         changed = false;
-        this.seedInfo.perks = infoProviders.PERK.provide(this.pickedPerks, null, true, this.perkWorldOffset, this.perkRerolls);
+        this.seedInfo.perks = infoProviders.PERK.provide(this.pickedPerks, null, this.perkWorldOffset, this.perkRerolls);
         for (let i = 0; i < this.pickedPerks[this.perkWorldOffset].length; i++) {
-          if (this.pickedPerks[this.perkWorldOffset][i] && !this.seedInfo.perks[i].some(e => e.id === this.pickedPerks[this.perkWorldOffset][i])) {
+          if (this.pickedPerks[this.perkWorldOffset][i] && !this.seedInfo.perks[i].some(e => e.perk.id === this.pickedPerks[this.perkWorldOffset][i])) {
             delete this.pickedPerks[this.perkWorldOffset][i];
             changed = true;
             break;
@@ -232,7 +232,7 @@ app = new Vue({
         startingFlask: infoProviders.STARTING_FLASK.provide(),
         startingSpell: infoProviders.STARTING_SPELL.provide(),
         startingBombSpell: infoProviders.STARTING_BOMB_SPELL.provide(),
-        perks: infoProviders.PERK.provide(this.pickedPerks, null, true, this.perkWorldOffset, this.perkRerolls),
+        perks: infoProviders.PERK.provide(this.pickedPerks, null, this.perkWorldOffset, this.perkRerolls),
         perkDeck: infoProviders.PERK.getPerkDeck(true),
         fungalShifts: infoProviders.FUNGAL_SHIFT.provide(null, this.fungalHoldingFlasks),
         biomeModifiers: infoProviders.BIOME_MODIFIER.provide()

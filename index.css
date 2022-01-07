@@ -1,6 +1,9 @@
 .fungal-shift:nth-child(even) {
   background-color: hsla(var(--b2)/var(--tw-bg-opacity,1));
 }
+.perk {
+  position: relative;
+}
 .perk > img {
   image-rendering: pixelated;
   image-rendering: -moz-crisp-edges;
@@ -11,6 +14,12 @@
 .perk-gambled {
   background-color: hsla(var(--wa)/var(--tw-bg-opacity,1));
   cursor: default;
+}
+.perk-preserved:before {
+  content: "🍀";
+  position: absolute;
+  top: 0;
+  right: 0;
 }
 .perk-reroll {
   background: url('img/perk_reroll.png') center -17px/contain no-repeat;

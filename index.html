@@ -249,8 +249,16 @@
               <button class="btn btn-sm w-4 block" @click="perksGoEast">&gt;</button>
             </div>
             <div class="flex flex-row justify-between items-center" v-for="(perkList, level) in seedInfo.perks">
-              <div v-for="(perk, index) in perkList" :title="perk.ui_name" :class="['cursor-pointer', 'perk', pickedPerks[perkWorldOffset]?.[level] === perk.id ? 'perk-active' : '', perk.gambled ? 'perk-gambled' : '']" @click="onClickPerk(level, perk)">
-                <img :src="'data:image/png;base64,' + perk.ui_icon" class="w-16 h-16">
+              <div v-for="(info, index) in perkList" :title="info.perk.ui_name" :class="[
+                  'cursor-pointer',
+                  'perk',
+                  pickedPerks[perkWorldOffset]?.[level] === info.perk.id ? 'perk-active' : '',
+                  (pickedPerks.flat().find(id => id === 'PERKS_LOTTERY') || info.perk.id === 'PERKS_LOTTERY') && info.willBeRemoved === false ? 'perk-preserved' : '',
+                  info.gambled ? 'perk-gambled' : '',
+                ]"
+                @click="onClickPerk(level, info.perk)"
+              >
+                <img :src="'data:image/png;base64,' + info.perk.ui_icon" class="w-16 h-16">
               </div>
               <div class="btn btn-ghost w-16 h-16" title="Reroll: right-click to unroll" @click="increasePerkRerolls(level)" @contextmenu.prevent="decreasePerkRerolls(level)">
                 <div class="perk-reroll text-right w-full h-full">
