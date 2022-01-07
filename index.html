@@ -253,7 +253,7 @@
                   'cursor-pointer',
                   'perk',
                   pickedPerks[perkWorldOffset]?.[level] === info.perk.id ? 'perk-active' : '',
-                  (pickedPerks.flat().find(id => id === 'PERKS_LOTTERY') || info.perk.id === 'PERKS_LOTTERY') && info.willBeRemoved === false ? 'perk-preserved' : '',
+                  !info.gambled && (pickedPerks.flat().find(id => id === 'PERKS_LOTTERY') || info.perk.id === 'PERKS_LOTTERY') && info.willBeRemoved === false ? 'perk-preserved' : '',
                   info.gambled ? 'perk-gambled' : '',
                 ]"
                 @click="onClickPerk(level, info.perk)"
@@ -337,7 +337,7 @@
       </div>
       <div class="divider"></div>
       <footer>
-        <span>&copy; Cr4xy 2021 - <a class="link link-hover" href="//noitagame.com">Noita</a> by <a class="link link-hover" href="//nollagames.com">Nolla Games</a></span>
+        <span>Made by Cr4xy and <a class="link link-hover" href="//github.com/Cr4xy/noita-seed-tool/contributors">contributors</a> - <a class="link link-hover" href="//noitagame.com">Noita</a> by <a class="link link-hover" href="//nollagames.com">Nolla Games</a></span>
       </footer>
     </div>
   </div>
