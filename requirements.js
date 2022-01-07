@@ -440,8 +440,7 @@ class PerkInfoProvider extends InfoProvider {
     }
     return result;
   }
-  provide(perkPicks, maxLevels, returnPerkObjects, worldOffset, rerolls) {
-    if (returnPerkObjects !== true) throw "assertion fail"
+  provide(perkPicks, maxLevels, worldOffset, rerolls) {
     let getPerks = (perkPicks, maxLevels, worldOffset) => {
       perkPicks = perkPicks || [];
       worldOffset = worldOffset || 0;
@@ -914,11 +913,11 @@ class SeedRequirementPerk extends SeedRequirement {
     let perks = this.provider.provide(null, level);
     if (level == -1) {
       for (let i = 0; i < perks.length; i++) {
-        if (perks[i].indexOf(perk) !== -1) return true;
+        if (perks[i].findIndex(e => e.perk.id === perk) !== -1) return true;
       }
       return false;
     }
-    return perks[level - 1].indexOf(perk) !== -1;
+    return perks[level - 1].findIndex(e => e.perk.id === perk) !== -1;
   }
 }
 
