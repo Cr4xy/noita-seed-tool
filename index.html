@@ -258,13 +258,14 @@
               <button class="btn btn-sm w-4 block" @click="perksGoEast">&gt;</button>
             </div>
             <div class="flex flex-row justify-between items-center" v-for="(perkList, level) in seedInfo.perks">
-              <div v-for="(info, index) in perkList" :title="info.perk.ui_name" :class="[
-                  'cursor-pointer',
-                  'perk',
-                  pickedPerks[perkWorldOffset]?.[level]?.some(e => e === info.perk.id) ? 'perk-active' : '',
-                  !info.gambled && info.willBeRemoved === false ? 'perk-preserved' : '',
-                  info.gambled ? 'perk-gambled' : '',
-                ]"
+              <div v-for="(info, index) in perkList"
+                :title="info.perk.ui_name"
+                class="cursor-pointer perk"
+                :class="{
+                  'perk-active': pickedPerks[perkWorldOffset]?.[level]?.some(e => e === info.perk.id),
+                  'perk-preserved': !info.gambled && info.willBeRemoved === false,
+                  'perk-gambled': info.gambled,
+                }"
                 @click="onClickPerk(level, info.perk)"
               >
                 <img :src="'data:image/png;base64,' + info.perk.ui_icon" draggable="false" class="w-16 h-16">
@@ -277,29 +278,18 @@
             </div>
           </div>
         </div>
-        <div class="ml-1 flex flex-col inline-flex w-64 min-w-max justify-between">
+        <div class="ml-1 mr-1 flex flex-col inline-flex w-64 min-w-max justify-between">
           <h2>Fungal Shifts</h2>
-          <div class="form-control">
-            <label class="cursor-pointer label">
-              <span class="label-text">Holding flask</span> 
-              <input type="checkbox" checked="checked" class="checkbox" v-model="fungalHoldingFlaskAll">
-            </label>
-          </div>
           <div class="flex flex-row p-2 pr-0 w-full fungal-shift" v-for="(shift, level) in seedInfo.fungalShifts">
             <div class="mr-1">{{ level + 1 }}</div>
-            <div> <!-- from -->
-              <div v-for="(mat, i) in shift[0]" class="capitalize" :style="{ backgroundColor: getMaterialColorHex(mat) }">{{ translateMaterial(mat) }}</div>
+            <div :class="{ 'fungal-flask': shift.flask === 'from' }"> <!-- from -->
+              <div v-for="(mat, i) in shift.from" class="capitalize" :style="{ backgroundColor: getMaterialColorHex(mat) }">{{ translateMaterial(mat) }}</div>
             </div>
             <div class="text-center m-auto">
-              <div class="whitespace-nowrap">-></div>
+              <div class="whitespace-nowrap">&rarr;</div>
             </div>
-            <div class="my-auto"> <!-- to -->
-              <div class="capitalize" :style="{ backgroundColor: getMaterialColorHex(shift[1]) }">{{ translateMaterial(shift[1]) }}</div>
-            </div>
-            <div class="form-control">
-              <label class="label lbl-holding-flask">
-                <input type="checkbox" checked="checked" class="checkbox" v-model="fungalHoldingFlasks[level]">
-              </label>
+            <div class="mr-1" :class="{ 'fungal-flask': shift.flask === 'to' }"> <!-- to -->
+              <div class="capitalize" :style="{ backgroundColor: getMaterialColorHex(shift.to) }">{{ translateMaterial(shift.to) }}</div>
             </div>
           </div>
         </div>

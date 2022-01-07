@@ -35,8 +35,6 @@ app = new Vue({
     pickedPerks: [],
     perkRerolls: [],
     perkWorldOffset: 0,
-    fungalHoldingFlaskAll: false,
-    fungalHoldingFlasks: new Array(20).fill(false)
   },
   methods: {
     searchSeed() {
@@ -244,16 +242,10 @@ app = new Vue({
         startingBombSpell: infoProviders.STARTING_BOMB_SPELL.provide(),
         perks: infoProviders.PERK.provide(this.pickedPerks, null, this.perkWorldOffset, this.perkRerolls),
         perkDeck: infoProviders.PERK.getPerkDeck(true),
-        fungalShifts: infoProviders.FUNGAL_SHIFT.provide(null, this.fungalHoldingFlasks),
+        fungalShifts: infoProviders.FUNGAL_SHIFT.provide(null),
         biomeModifiers: infoProviders.BIOME_MODIFIER.provide()
       };
     },
-    fungalHoldingFlaskAll() {
-      this.fungalHoldingFlasks = new Array(20).fill(this.fungalHoldingFlaskAll);
-    },
-    fungalHoldingFlasks() {
-      this.seedInfo.fungalShifts = infoProviders.FUNGAL_SHIFT.provide(null, this.fungalHoldingFlasks);
-    }
   },
   computed: {
     perkWorldOffsetText() {
