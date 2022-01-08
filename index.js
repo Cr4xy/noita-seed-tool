@@ -124,11 +124,11 @@ app = new Vue({
     },
     perksGoEast() {
       this.perkWorldOffset++;
-      this.seedInfo.perks = infoProviders.PERK.provide(this.pickedPerks, null, this.perkWorldOffset, this.perkRerolls);
+      this.refreshPerks();
     },
     perksGoWest() {
       this.perkWorldOffset--;
-      this.seedInfo.perks = infoProviders.PERK.provide(this.pickedPerks, null, this.perkWorldOffset, this.perkRerolls);
+      this.refreshPerks();
     },
     onClickPerk(level, perk) {
       if (perk.gambled) return;
@@ -143,7 +143,7 @@ app = new Vue({
       let changed;
       do {
         changed = false;
-        this.seedInfo.perks = infoProviders.PERK.provide(this.pickedPerks, null, this.perkWorldOffset, this.perkRerolls);
+        this.refreshPerks();
         for (let i = 0; i < this.pickedPerks[this.perkWorldOffset].length; i++) {
           if (this.pickedPerks[this.perkWorldOffset][i] && !this.seedInfo.perks[i].some(e => e.perk.id === this.pickedPerks[this.perkWorldOffset][i])) {
             delete this.pickedPerks[this.perkWorldOffset][i];
@@ -157,13 +157,16 @@ app = new Vue({
       if (!this.perkRerolls[this.perkWorldOffset]) this.$set(this.perkRerolls, this.perkWorldOffset, []);
       if (isNaN(this.perkRerolls[this.perkWorldOffset][level])) this.perkRerolls[this.perkWorldOffset][level] = 0;
       this.$set(this.perkRerolls[this.perkWorldOffset], level, this.perkRerolls[this.perkWorldOffset][level] + 1);
-      this.seedInfo.perks = infoProviders.PERK.provide(this.pickedPerks, null, true, this.perkWorldOffset, this.perkRerolls);
+      this.refreshPerks();
     },
     decreasePerkRerolls(level) {
       if (!this.perkRerolls[this.perkWorldOffset]) this.$set(this.perkRerolls, this.perkWorldOffset, []);
       if (isNaN(this.perkRerolls[this.perkWorldOffset][level])) this.perkRerolls[this.perkWorldOffset][level] = 0;
       this.$set(this.perkRerolls[this.perkWorldOffset], level, Math.max(0, this.perkRerolls[this.perkWorldOffset][level] - 1));
-      this.seedInfo.perks = infoProviders.PERK.provide(this.pickedPerks, null, true, this.perkWorldOffset, this.perkRerolls);
+      this.refreshPerks();
+    },
+    refreshPerks() {
+      this.seedInfo.perks = infoProviders.PERK.provide(this.pickedPerks, null, this.perkWorldOffset, this.perkRerolls);
     },
     copyString(str) {
       let txtCopy = document.createElement('input');
