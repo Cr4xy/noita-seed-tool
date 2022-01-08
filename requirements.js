@@ -1151,7 +1151,10 @@ RequirementPerk.prototype.serialize = function() {
 RequirementPerk.deserialize = function(str) {
   if (!str.startsWith("p")) return;
   let req = new RequirementPerk();
-  [req.level, req.perk, req.reroll] = str.match(/^p\-l(-?\d+)\-p(.+?)\-r(-?\d+)$/).slice(1);
+  if (str.match(/^p\-l(-?\d+)\-p(.+?)\-r(-?\d+)$/))
+    [req.level, req.perk, req.reroll] = str.match(/^p\-l(-?\d+)\-p(.+?)\-r(-?\d+)$/).slice(1);
+  else
+    [req.level, req.perk] = str.match(/^p\-l(-?\d+)\-p(.+?)$/).slice(1);
   return req;
 }
 RequirementPerk.displayName = "Perk";
