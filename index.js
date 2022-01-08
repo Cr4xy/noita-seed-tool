@@ -116,6 +116,7 @@ app = new Vue({
     },
     showPerkDeck() {
       this.displayPerkDeck = true;
+      Vue.nextTick(() => this.$refs['perk-deck-modal'].focus())
     },
     hidePerkDeck() {
       this.displayPerkDeck = false;

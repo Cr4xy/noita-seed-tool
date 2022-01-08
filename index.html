@@ -24,7 +24,7 @@
   <div class="container mx-auto p-4">
     <h1 class="prose lg:prose-xl">Noita Seed Tool</h1>
     <div id="app">
-      <div :class="['modal', displayPerkDeck ? 'modal-open' : '']">
+      <div ref='perk-deck-modal' :class="['modal', displayPerkDeck ? 'modal-open' : '']" tabindex="0" @keydown.esc="hidePerkDeck" @click.self="hidePerkDeck">
         <div class="modal-box" style="max-width: 64rem">
           <h1 class="prose prose-sm lg:prose-lg">Perk Deck</h1>
           <div class="divider" style="margin-top: 0.5rem; margin-bottom: 0.5rem;"></div>
