@@ -278,6 +278,12 @@ class PerkInfoProvider extends InfoProvider {
       const perkPosition = { x: posX, y };
       SetRandomSeed(perkPosition.x, perkPosition.y);
       let perk_destroy_chance = parseFloat(GlobalsGetValue("TEMPLE_PERK_DESTROY_CHANCE", "100"));
+      if (perk_destroy_chance === 100 && perk_id === 'PERKS_LOTTERY') {
+        // Calculate if the perk would trigger on initial pickup
+        // NOTE: For now this is a hack which works only for the first time a lottery perk is taken, since currently
+        // we can’t tell if the perk we are checking is already factored into the TEMPLE_PERK_DESTROY_CHANCE value
+        perk_destroy_chance = 50;
+      }
       const willBeRemoved = Random(1, 100) <= perk_destroy_chance;
 
       result.push({
