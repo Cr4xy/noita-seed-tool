@@ -30,7 +30,7 @@
           <div class="divider" style="margin-top: 0.5rem; margin-bottom: 0.5rem;"></div>
           <div class="flex flex-row items-center flex-wrap">
             <div v-for="(perk, index) in seedInfo.perkDeck" :title="perk.ui_name" class="perk">
-              <img :src="'data:image/png;base64,' + perk.ui_icon" class="md:w-16 md:h-16 w-8 h-8">
+              <img :src="'data:image/png;base64,' + perk.ui_icon" draggable="false" class="md:w-16 md:h-16 w-8 h-8">
             </div>
             <div class="flex-grow"></div>
             <div class="modal-action">
@@ -267,7 +267,7 @@
                 ]"
                 @click="onClickPerk(level, info.perk)"
               >
-                <img :src="'data:image/png;base64,' + info.perk.ui_icon" class="w-16 h-16">
+                <img :src="'data:image/png;base64,' + info.perk.ui_icon" draggable="false" class="w-16 h-16">
               </div>
               <div class="btn btn-ghost w-16 h-16" title="Reroll: right-click to unroll" @click="increasePerkRerolls(level)" @contextmenu.prevent="decreasePerkRerolls(level)">
                 <div class="perk-reroll text-right w-full h-full">
