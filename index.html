@@ -253,7 +253,7 @@
                   'cursor-pointer',
                   'perk',
                   pickedPerks[perkWorldOffset]?.[level] === info.perk.id ? 'perk-active' : '',
-                  !info.gambled && (pickedPerks.flat().find(id => id === 'PERKS_LOTTERY') || info.perk.id === 'PERKS_LOTTERY') && info.willBeRemoved === false ? 'perk-preserved' : '',
+                  !info.gambled && info.willBeRemoved === false ? 'perk-preserved' : '',
                   info.gambled ? 'perk-gambled' : '',
                 ]"
                 @click="onClickPerk(level, info.perk)"

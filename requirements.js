@@ -263,19 +263,22 @@ class PerkInfoProvider extends InfoProvider {
       if (next_perk_index >= perks.length) {
         next_perk_index = 0;
       }
-      GlobalsSetValue( "TEMPLE_NEXT_PERK_INDEX", String(next_perk_index) )
+      GlobalsSetValue( "TEMPLE_NEXT_PERK_INDEX", String(next_perk_index) );
 
-      GameAddFlagRun( this.get_perk_flag_name(perk_id) )
+      GameAddFlagRun( this.get_perk_flag_name(perk_id) );
 
-      const perk = this.perks.find(f => f.id === perk_id)
+      const perk = this.perks.find(f => f.id === perk_id);
 
-      const width = 60
-      const item_width = width / count
+      const width = 60;
+      const item_width = width / count;
 
-      const perkPosition = { x: x + (i+1-0.5)*item_width, y }
-      SetRandomSeed(perkPosition.x, perkPosition.y)
-      const perk_destroy_chance = 50
-      const willBeRemoved = Random(0, 100) <= perk_destroy_chance
+      let posX = x + (i + 1 - 0.5) * item_width;
+      posX = Math.floor(posX) % 2 === 0 ? Math.floor(posX) : Math.ceil(posX); // Thanks Banpa
+
+      const perkPosition = { x: posX, y };
+      SetRandomSeed(perkPosition.x, perkPosition.y);
+      let perk_destroy_chance = parseFloat(GlobalsGetValue("TEMPLE_PERK_DESTROY_CHANCE", "100"));
+      const willBeRemoved = Random(1, 100) <= perk_destroy_chance;
 
       result.push({
         perk_id,
@@ -454,6 +457,16 @@ class PerkInfoProvider extends InfoProvider {
       let i, world = 0;
       let o = 0;
       GlobalsSetValue("TEMPLE_PERK_COUNT", "3");
+
+      let destroyChance = perkPicks.flat().reduce((a, v) => {
+        if (v === "PERKS_LOTTERY") {
+            a /= 2;
+        }
+        return a;
+      }, 100);
+
+      GlobalsSetValue("TEMPLE_PERK_DESTROY_CHANCE", String(destroyChance));
+
       let temple_locations = this.temples;
       while (true) {
         i = 0;
