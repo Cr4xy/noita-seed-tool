@@ -244,7 +244,8 @@ app = new Vue({
         perks: infoProviders.PERK.provide(this.pickedPerks, null, this.perkWorldOffset, this.perkRerolls),
         perkDeck: infoProviders.PERK.getPerkDeck(true),
         fungalShifts: infoProviders.FUNGAL_SHIFT.provide(null),
-        biomeModifiers: infoProviders.BIOME_MODIFIER.provide()
+        biomeModifiers: infoProviders.BIOME_MODIFIER.provide(),
+        waterCave: infoProviders.WATER_CAVE.provide(),
       };
     },
   },

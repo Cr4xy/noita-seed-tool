@@ -58,6 +58,12 @@ class RainInfoProvider extends InfoProvider {
   }
 }
 
+class WaterCaveInfoProvider extends InfoProvider {
+  provide() {
+    return Math.floor(ProceduralRandomi(-2048, 515, 1, 6))
+  }
+}
+
 class StartingFlaskInfoProvider extends InfoProvider {
   async load() {
     this.materials = await this.loadAsync("data/starting-flask-materials.json");
@@ -870,6 +876,7 @@ const infoProviders = {
   BIOME_MODIFIER: new BiomeModifierInfoProvider,
   BIOME: new BiomeInfoProvider,
   MATERIAL: new MaterialInfoProvider,
+  WATER_CAVE: new WaterCaveInfoProvider,
 };
 
 class SeedRequirement {
