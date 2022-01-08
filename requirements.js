@@ -465,9 +465,7 @@ class PerkInfoProvider extends InfoProvider {
       let perkDeck = this.getPerkDeck();
 
       let result = [];
-      let gambles = [];
       let i, world = 0;
-      let o = 0;
       GlobalsSetValue("TEMPLE_PERK_COUNT", "3");
 
       let destroyChance = perkPicks.flat(2).reduce((a, v) => {
@@ -498,12 +496,13 @@ class PerkInfoProvider extends InfoProvider {
             let rerollRes = this._getReroll(perkDeck, res.length);
             if (world == worldOffset) {
               rerollRes = res.map((info, index) => {
-                info.perk_id = rerollRes[index]
-                info.perk = this.perks.find(f => f.id === info.perk_id)
+                info.perk_id = rerollRes[index];
+                info.perk = this.perks.find(f => f.id === info.perk_id);
                 return info
-              })
+              });
               result.push(rerollRes);
             }
+            res = rerollRes;
           } else {
             if (world == worldOffset) {
               result.push(res);
@@ -521,14 +520,14 @@ class PerkInfoProvider extends InfoProvider {
                 GlobalsSetValue("TEMPLE_PERK_COUNT", parseFloat(GlobalsGetValue("TEMPLE_PERK_COUNT")) + 1);
               } else if (picked_perk == "GAMBLE") {
                 let gambledPerks = this.perk_spawn_many(perkDeck, loc.x + offsetX, loc.y + offsetY, 2);
-                while (gambledPerks.indexOf("GAMBLE") >= 0) {
-                  let idx = gambledPerks.indexOf("GAMBLE");
+                while (gambledPerks.some(e => e.perk_id === "GAMBLE")) {
+                  let idx = gambledPerks.findIndex(e => e.perk_id === "GAMBLE");
                   let moreGambledPerks = this.perk_spawn_many(perkDeck, loc.x + offsetX, loc.y + offsetY, 1);
                   gambledPerks.splice(idx, 1, moreGambledPerks[0]);
                 }
                 for (let k = 0; k < gambledPerks.length; k++) {
                   let gambledPerk = gambledPerks[k];
-                  gambledPerk.gambled = true
+                  gambledPerk.gambled = true;
                   // if (gambledPerk == "GAMBLE") continue;
                   var flag_name = this.get_perk_picked_flag_name(gambledPerk.perk_id);
                   GameAddFlagRun(flag_name);
@@ -538,13 +537,11 @@ class PerkInfoProvider extends InfoProvider {
                   }
                   let index = res.findIndex(e => e.perk_id === picked_perk);
                   res.splice(index + 1 + k, 0, gambledPerk);
-                  gambles[o + index + 1 + k] = true;
                 }
               }
             }
           }
           i++;
-          o += res.length;
         }
         if (world == worldOffset) break;
         if (worldOffset < 0) world--;
