@@ -116,6 +116,15 @@
                   </div>
                   <div v-else-if="item.type === 'Perk'" class="whitespace-normal">
                     <label>
+                      Reroll
+                      <select class="select select-bordered w-full max-w-xs" v-model="seedCriteria[index].reroll">
+                        <option disabled="disabled" selected="selected">Choose a the number of rerolls</option>
+                        <option value="-1">(none)</option>
+                        <option v-for="i in 10" :value="i">{{ i }}</option> 
+                      </select>
+                    </label>
+                    <br>
+                    <label>
                       Level
                       <select class="select select-bordered w-full max-w-xs" v-model="seedCriteria[index].level">
                         <option disabled="disabled" selected="selected">Choose a level</option>
@@ -252,7 +261,7 @@
               <div v-for="(info, index) in perkList" :title="info.perk.ui_name" :class="[
                   'cursor-pointer',
                   'perk',
-                  pickedPerks[perkWorldOffset]?.[level] === info.perk.id ? 'perk-active' : '',
+                  pickedPerks[perkWorldOffset]?.[level]?.some(e => e === info.perk.id) ? 'perk-active' : '',
                   !info.gambled && info.willBeRemoved === false ? 'perk-preserved' : '',
                   info.gambled ? 'perk-gambled' : '',
                 ]"

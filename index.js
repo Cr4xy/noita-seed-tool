@@ -134,21 +134,28 @@ app = new Vue({
       if (perk.gambled) return;
       let perkId = perk.id;
       if (!this.pickedPerks[this.perkWorldOffset]) this.pickedPerks[this.perkWorldOffset] = [];
-      if (this.pickedPerks[this.perkWorldOffset][level] === perkId) {
-        delete this.pickedPerks[this.perkWorldOffset][level];
+      if (this.pickedPerks[this.perkWorldOffset][level]) {
+        if (this.pickedPerks[this.perkWorldOffset][level].some(e => e === perkId)) {
+          this.pickedPerks[this.perkWorldOffset][level].splice(this.pickedPerks[this.perkWorldOffset][level].findIndex(e => e === perkId), 1);
+        } else {
+          this.pickedPerks[this.perkWorldOffset][level].push(perkId);
+        }
       } else {
         //this.pickedPerks[this.perkWorldOffset][level] = perkId;
-        this.$set(this.pickedPerks[this.perkWorldOffset], level, perkId);
+        this.$set(this.pickedPerks[this.perkWorldOffset], level, [perkId]);
       }
       let changed;
       do {
         changed = false;
         this.refreshPerks();
         for (let i = 0; i < this.pickedPerks[this.perkWorldOffset].length; i++) {
-          if (this.pickedPerks[this.perkWorldOffset][i] && !this.seedInfo.perks[i].some(e => e.perk.id === this.pickedPerks[this.perkWorldOffset][i])) {
-            delete this.pickedPerks[this.perkWorldOffset][i];
-            changed = true;
-            break;
+          if (!this.pickedPerks[this.perkWorldOffset][i]) continue;
+          for (let j = 0; j < this.pickedPerks[this.perkWorldOffset][i].length; j++) {
+            if (this.pickedPerks[this.perkWorldOffset][i][j] && !this.seedInfo.perks[i].some(e => e.perk.id === this.pickedPerks[this.perkWorldOffset][i][j])) {
+              this.pickedPerks[this.perkWorldOffset][i].splice(j, 1);
+              changed = true;
+              break;
+            }
           }
         }
       } while (changed);

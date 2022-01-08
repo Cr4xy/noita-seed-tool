@@ -458,7 +458,7 @@ class PerkInfoProvider extends InfoProvider {
       let o = 0;
       GlobalsSetValue("TEMPLE_PERK_COUNT", "3");
 
-      let destroyChance = perkPicks.flat().reduce((a, v) => {
+      let destroyChance = perkPicks.flat(2).reduce((a, v) => {
         if (v === "PERKS_LOTTERY") {
             a /= 2;
         }
@@ -480,7 +480,7 @@ class PerkInfoProvider extends InfoProvider {
           let res = this.perk_spawn_many(perkDeck, loc.x + offsetX, loc.y + offsetY);
 
           if (rerolls && rerolls[world] && rerolls[world][i] > 0) {
-            for (var j = 0; j < rerolls[world][i] - 1; j++) {
+            for (let j = 0; j < rerolls[world][i] - 1; j++) {
               this._getReroll(perkDeck, res.length);
             }
             let rerollRes = this._getReroll(perkDeck, res.length);
@@ -497,33 +497,37 @@ class PerkInfoProvider extends InfoProvider {
               result.push(res);
             }
           }
-          let picked_perk = perkPicks[world]?.[i];
-          if (picked_perk) {
-            var flag_name = this.get_perk_picked_flag_name(picked_perk);
-            GameAddFlagRun(flag_name);
-            GlobalsSetValue( flag_name + "_PICKUP_COUNT", Number(GlobalsGetValue( flag_name + "_PICKUP_COUNT", "0" )) + 1 );
-            if (picked_perk == "EXTRA_PERK") {
-              GlobalsSetValue("TEMPLE_PERK_COUNT", parseFloat(GlobalsGetValue("TEMPLE_PERK_COUNT")) + 1);
-            } else if (picked_perk == "GAMBLE") {
-              let gambledPerks = this.perk_spawn_many(perkDeck, loc.x + offsetX, loc.y + offsetY, 2);
-              while (gambledPerks.indexOf("GAMBLE") >= 0) {
-                let idx = gambledPerks.indexOf("GAMBLE");
-                let moreGambledPerks = this.perk_spawn_many(perkDeck, loc.x + offsetX, loc.y + offsetY, 1);
-                gambledPerks.splice(idx, 1, moreGambledPerks[0]);
-              }
-              for (let j = 0; j < gambledPerks.length; j++) {
-                let gambledPerk = gambledPerks[j];
-                gambledPerk.gambled = true
-                // if (gambledPerk == "GAMBLE") continue;
-                var flag_name = this.get_perk_picked_flag_name(gambledPerk.perk_id);
-                GameAddFlagRun(flag_name);
-                GlobalsSetValue( flag_name + "_PICKUP_COUNT", Number(GlobalsGetValue( flag_name + "_PICKUP_COUNT", "0" )) + 1 );
-                if (gambledPerk.perk_id == "EXTRA_PERK") {
-                  GlobalsSetValue("TEMPLE_PERK_COUNT", parseFloat(GlobalsGetValue("TEMPLE_PERK_COUNT")) + 1);
+          let picked_perks = perkPicks[world]?.[i];
+          if (picked_perks && picked_perks.length > 0) {
+            for (let j = 0; j < picked_perks.length; j++) {
+              let picked_perk = picked_perks[j];
+              if (!picked_perk) continue;
+              var flag_name = this.get_perk_picked_flag_name(picked_perk);
+              GameAddFlagRun(flag_name);
+              GlobalsSetValue( flag_name + "_PICKUP_COUNT", Number(GlobalsGetValue( flag_name + "_PICKUP_COUNT", "0" )) + 1 );
+              if (picked_perk == "EXTRA_PERK") {
+                GlobalsSetValue("TEMPLE_PERK_COUNT", parseFloat(GlobalsGetValue("TEMPLE_PERK_COUNT")) + 1);
+              } else if (picked_perk == "GAMBLE") {
+                let gambledPerks = this.perk_spawn_many(perkDeck, loc.x + offsetX, loc.y + offsetY, 2);
+                while (gambledPerks.indexOf("GAMBLE") >= 0) {
+                  let idx = gambledPerks.indexOf("GAMBLE");
+                  let moreGambledPerks = this.perk_spawn_many(perkDeck, loc.x + offsetX, loc.y + offsetY, 1);
+                  gambledPerks.splice(idx, 1, moreGambledPerks[0]);
                 }
-                let index = res.findIndex(e => e.perk_id === picked_perk);
-                res.splice(index + 1 + j, 0, gambledPerk);
-                gambles[o + index + 1 + j] = true;
+                for (let k = 0; k < gambledPerks.length; k++) {
+                  let gambledPerk = gambledPerks[k];
+                  gambledPerk.gambled = true
+                  // if (gambledPerk == "GAMBLE") continue;
+                  var flag_name = this.get_perk_picked_flag_name(gambledPerk.perk_id);
+                  GameAddFlagRun(flag_name);
+                  GlobalsSetValue( flag_name + "_PICKUP_COUNT", Number(GlobalsGetValue( flag_name + "_PICKUP_COUNT", "0" )) + 1 );
+                  if (gambledPerk.perk_id == "EXTRA_PERK") {
+                    GlobalsSetValue("TEMPLE_PERK_COUNT", parseFloat(GlobalsGetValue("TEMPLE_PERK_COUNT")) + 1);
+                  }
+                  let index = res.findIndex(e => e.perk_id === picked_perk);
+                  res.splice(index + 1 + k, 0, gambledPerk);
+                  gambles[o + index + 1 + k] = true;
+                }
               }
             }
           }
@@ -922,7 +926,36 @@ class SeedRequirementPerk extends SeedRequirement {
   constructor() {
     super("Perk", "Perk", false, infoProviders.PERK);
   }
-  test(level, perk) {
+  test(level, perk, reroll) {
+    if (reroll != -1) {
+      let rerollsArr;
+      if (level == -1) {
+        let numTemples = this.provider.temples.length;
+        for (let i = 0; i < numTemples; i++) {
+          rerollsArr = [
+            // Level 0 - World
+            [
+              // Level 1 - Holy Mountain
+            ]
+          ];
+          rerollsArr[0][i] = reroll;
+
+          let perks = this.provider.provide(null, level, null, rerollsArr);
+
+          if (perks[i].findIndex(e => e.perk.id === perk) !== -1) return true;
+        }
+        return false;
+      }
+      rerollsArr = [
+        // Level 0 - World
+        [
+          // Level 1 - Holy Mountain
+        ]
+      ];
+      rerollsArr[0][level - 1] = reroll;
+      let perks = this.provider.provide(null, level, null, rerollsArr);
+      return perks[level - 1].findIndex(e => e.perk.id === perk) !== -1;
+    }
     let perks = this.provider.provide(null, level);
     if (level == -1) {
       for (let i = 0; i < perks.length; i++) {
@@ -1088,6 +1121,7 @@ RequirementStartingBombSpell.displayName = "Starting Bomb Spell";
 const RequirementPerk = function() {
   this.type = "Perk";
   this.level = 1;
+  this.reroll = -1;
   this.requirement = new SeedRequirementPerk();
 
   // This is required so vue knows which properties are reactive
@@ -1099,22 +1133,25 @@ const RequirementPerk = function() {
   });
 };
 RequirementPerk.prototype.test = function() {
-  return this.requirement.test(this.level, this.perk);
+  return this.requirement.test(this.level, this.perk, this.reroll);
 }
 RequirementPerk.prototype.textify = function() {
   let str = "Have the perk '" + this.requirement.provider.perks.find(e => e.id == this.perk).ui_name + "'";
   if (this.level != -1) {
     str += " in the " + nthify(this.level) + " level";
   }
+  if (this.reroll != -1) {
+    str += " on the " + nthify(this.reroll) + " reroll";
+  }
   return str;
 }
 RequirementPerk.prototype.serialize = function() {
-  return "p-l" + this.level + "-p" + this.perk;
+  return "p-l" + this.level + "-p" + this.perk + "-r" + this.reroll;
 }
 RequirementPerk.deserialize = function(str) {
   if (!str.startsWith("p")) return;
   let req = new RequirementPerk();
-  [req.level, req.perk] = str.match(/^p\-l(-?\d+)\-p(.+?)$/).slice(1);
+  [req.level, req.perk, req.reroll] = str.match(/^p\-l(-?\d+)\-p(.+?)\-r(-?\d+)$/).slice(1);
   return req;
 }
 RequirementPerk.displayName = "Perk";
