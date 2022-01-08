@@ -58,6 +58,12 @@ class RainInfoProvider extends InfoProvider {
   }
 }
 
+class WaterCaveInfoProvider extends InfoProvider {
+  provide() {
+    return Math.floor(ProceduralRandomi(-2048, 515, 1, 6))
+  }
+}
+
 class StartingFlaskInfoProvider extends InfoProvider {
   async load() {
     this.materials = await this.loadAsync("data/starting-flask-materials.json");
@@ -278,6 +284,12 @@ class PerkInfoProvider extends InfoProvider {
       const perkPosition = { x: posX, y };
       SetRandomSeed(perkPosition.x, perkPosition.y);
       let perk_destroy_chance = parseFloat(GlobalsGetValue("TEMPLE_PERK_DESTROY_CHANCE", "100"));
+      if (perk_destroy_chance === 100 && perk_id === 'PERKS_LOTTERY') {
+        // Calculate if the perk would trigger on initial pickup
+        // NOTE: For now this is a hack which works only for the first time a lottery perk is taken, since currently
+        // we can’t tell if the perk we are checking is already factored into the TEMPLE_PERK_DESTROY_CHANCE value
+        perk_destroy_chance = 50;
+      }
       const willBeRemoved = Random(1, 100) <= perk_destroy_chance;
 
       result.push({
@@ -550,8 +562,8 @@ class FungalInfoProvider extends InfoProvider {
   async load() {
     this.data = await this.loadAsync("data/fungal-materials.json");
   }
-  provide(maxShifts, holdingFlasks) {
-    let getFungalShifts = (maxShifts, holdingFlasks) => {
+  provide(maxShifts) {
+    let getFungalShifts = (maxShifts) => {
       var materials_from = this.data.materials_from;
   
       var materials_to = this.data.materials_to;
@@ -573,7 +585,7 @@ class FungalInfoProvider extends InfoProvider {
         return x;
       }
   
-      function fungal_shift(entity, x, y, debug_no_limits, holding_flask) {
+      function fungal_shift(entity, x, y, debug_no_limits) {
         //var parent = EntityGetParent(entity);
         //if (parent != 0) {
         //	entity = parent
@@ -587,24 +599,18 @@ class FungalInfoProvider extends InfoProvider {
   
         SetRandomSeed(89346, 42345 + iter);
   
-        var converted_any = false;
-  
-        var rnd = random_create(9123, 58925 + iter); // TODO: store for next change
-        var _from = pick_random_from_table_weighted(rnd, materials_from);
-        var to = pick_random_from_table_weighted(rnd, materials_to);
-        var held_material = holding_flask ? "(flask)" : null;// get_held_item_material(entity);
-        var from_material_name = "";
+        let rnd = random_create(9123, 58925 + iter); // TODO: store for next change
+        let _from = pick_random_from_table_weighted(rnd, materials_from);
+        let to = pick_random_from_table_weighted(rnd, materials_to);
   
         // if a potion is equipped, randomly use main material from potion as one of the materials
-        if (held_material && random_nexti(rnd, 1, 100) <= 75) {
+        const wouldUseHeldMaterial = random_nexti(rnd, 1, 100) <= 75
+        let heldMaterialWouldBeUsedAs = null
+        if (wouldUseHeldMaterial) {
           if (random_nexti(rnd, 1, 100) <= 50) {
-            var _from = {}
-            _from.materials = [
-              CellFactory_GetName(held_material)
-            ]
+            heldMaterialWouldBeUsedAs = 'from'
           } else {
-            to = {}
-            to.material = CellFactory_GetName(held_material)
+            heldMaterialWouldBeUsedAs = 'to'
           }
         }
   
@@ -627,7 +633,7 @@ class FungalInfoProvider extends InfoProvider {
             //return [from_material, to_material];
           }
         }
-        return [from_materials, to_material];
+        return { from: from_materials, to: to_material, flask: heldMaterialWouldBeUsedAs };
       }
   
   
@@ -636,16 +642,13 @@ class FungalInfoProvider extends InfoProvider {
       var shifts = [];
       if (!maxShifts || maxShifts == -1) maxShifts = 20;
       for (var i = 0; i < maxShifts; i++) {
-        let hf;
-        if (Array.isArray(holdingFlasks)) hf = holdingFlasks ? holdingFlasks[i] : null;
-        else hf = holdingFlasks;
-        shifts.push(fungal_shift(null, null, null, null, hf));
+        shifts.push(fungal_shift(null, null, null, null));
       }
   
       return shifts;
     }
 
-    return getFungalShifts(maxShifts, holdingFlasks);
+    return getFungalShifts(maxShifts);
   }
 }
 
@@ -873,6 +876,7 @@ const infoProviders = {
   BIOME_MODIFIER: new BiomeModifierInfoProvider,
   BIOME: new BiomeInfoProvider,
   MATERIAL: new MaterialInfoProvider,
+  WATER_CAVE: new WaterCaveInfoProvider,
 };
 
 class SeedRequirement {

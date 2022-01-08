@@ -1,6 +1,21 @@
 .fungal-shift:nth-child(even) {
   background-color: hsla(var(--b2)/var(--tw-bg-opacity,1));
 }
+.fungal-shift > div {
+  position: relative;
+}
+.fungal-flask:before {
+  content: " ";
+  background: url('img/potion.png') center / contain no-repeat;
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  top: -13px;
+  right: -10px;
+}
+.fungal-shift > .fungal-flask:nth-child(4):before {
+  left: -10px;
+}
 .perk {
   position: relative;
 }
@@ -34,9 +49,10 @@
 .biome-modifier:nth-child(even) {
   background-color: hsla(var(--b2)/var(--tw-bg-opacity,1));
 }
-.lbl-holding-flask {
-  padding-top: 0;
-  padding-bottom: 0;
+.dark-cave {
+  width: 256px;
+  height: 256px;
+  background: url('img/darkcaves.png') 0 0 / 100% no-repeat;
 }
 @media (max-width: 768px) {
   .seed-criteria {
