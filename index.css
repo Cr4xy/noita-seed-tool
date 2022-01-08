@@ -8,6 +8,8 @@
   content: " ";
   background: url('img/potion.png') center / contain no-repeat;
   position: absolute;
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
   width: 20px;
   height: 20px;
   top: -13px;

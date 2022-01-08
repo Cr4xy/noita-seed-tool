@@ -1150,7 +1150,9 @@ RequirementPerk.prototype.textify = function() {
   return str;
 }
 RequirementPerk.prototype.serialize = function() {
-  return "p-l" + this.level + "-p" + this.perk + "-r" + this.reroll;
+  let s = "p-l" + this.level + "-p" + this.perk;
+  if (this.reroll != -1) s += "-r" + this.reroll;
+  return s;
 }
 RequirementPerk.deserialize = function(str) {
   if (!str.startsWith("p")) return;
