@@ -275,27 +275,9 @@ class PerkInfoProvider extends InfoProvider {
 
       const perk = this.perks.find(f => f.id === perk_id);
 
-      const width = 60;
-      const item_width = width / count;
-
-      let posX = x + (i + 1 - 0.5) * item_width;
-      posX = Math.floor(posX) % 2 === 0 ? Math.floor(posX) : Math.ceil(posX); // Thanks Banpa
-
-      const perkPosition = { x: posX, y };
-      SetRandomSeed(perkPosition.x, perkPosition.y);
-      let perk_destroy_chance = parseFloat(GlobalsGetValue("TEMPLE_PERK_DESTROY_CHANCE", "100"));
-      if (perk_destroy_chance === 100 && perk_id === 'PERKS_LOTTERY') {
-        // Calculate if the perk would trigger on initial pickup
-        // NOTE: For now this is a hack which works only for the first time a lottery perk is taken, since currently
-        // we can’t tell if the perk we are checking is already factored into the TEMPLE_PERK_DESTROY_CHANCE value
-        perk_destroy_chance = 50;
-      }
-      const willBeRemoved = Random(1, 100) <= perk_destroy_chance;
-
       result.push({
         perk_id,
         perk,
-        willBeRemoved,
       })
     }
     return result;
@@ -455,6 +437,57 @@ class PerkInfoProvider extends InfoProvider {
     }
     return result;
   }
+  perkLottery(allPerkPicks, perks, worldOffset) {
+    const worldPerkPicks = allPerkPicks[worldOffset] ?? [];
+    const gambledPerks = perks.flat().filter(p => p.gambled === true).map(p => p.perk_id)
+    const destroyChance = allPerkPicks.flat(2).concat(gambledPerks).reduce((a, v) => {
+      if (v === "PERKS_LOTTERY") {
+        a /= 2;
+      }
+      return a;
+    }, 100);
+
+    const offsetX = 35840 * worldOffset;
+
+    let result = [];
+    for (let templeIndex = 0; templeIndex < perks.length; ++templeIndex) {
+      const templePerkPicks = worldPerkPicks[templeIndex] ?? [];
+      const templeLoc = this.temples[templeIndex];
+      const x = templeLoc.x + offsetX;
+      const y = templeLoc.y;
+
+      // Ignore the extra perks which are inserted from gambling
+      const perkCount = perks[templeIndex].filter(p => p.gambled !== true).length
+      const width = 60;
+      const item_width = width / perkCount;
+
+      let templeResult = []
+
+      for (let perkIndex = 0; perkIndex < perkCount; perkIndex++) {
+        let posX = x + (perkIndex + 1 - 0.5) * item_width;
+        posX = Math.floor(posX) % 2 === 0 ? Math.floor(posX) : Math.ceil(posX); // Thanks Banpa
+
+        SetRandomSeed(posX, y);
+
+        let perk_destroy_chance = destroyChance;
+
+        const perk_id = perks[templeIndex][perkIndex].perk_id
+
+        // If this is the lottery perk and it hasn’t been taken yet,
+        // we need to factor in the extra luck on this pickup.
+        if (perk_id === 'PERKS_LOTTERY' && !templePerkPicks.some(p => p === "PERKS_LOTTERY")) {
+          perk_destroy_chance /= 2;
+        }
+
+        const willBeRemoved = Random(1, 100) <= perk_destroy_chance;
+        templeResult.push(willBeRemoved)
+      }
+
+      result.push(templeResult)
+    }
+
+    return result
+  }
   provide(perkPicks, maxLevels, worldOffset, rerolls) {
     let getPerks = (perkPicks, maxLevels, worldOffset) => {
       perkPicks = perkPicks || [];
@@ -467,15 +500,6 @@ class PerkInfoProvider extends InfoProvider {
       let result = [];
       let i, world = 0;
       GlobalsSetValue("TEMPLE_PERK_COUNT", "3");
-
-      let destroyChance = perkPicks.flat(2).reduce((a, v) => {
-        if (v === "PERKS_LOTTERY") {
-            a /= 2;
-        }
-        return a;
-      }, 100);
-
-      GlobalsSetValue("TEMPLE_PERK_DESTROY_CHANCE", String(destroyChance));
 
       let temple_locations = this.temples;
       while (true) {

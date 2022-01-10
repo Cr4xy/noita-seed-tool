@@ -263,7 +263,7 @@
                 class="cursor-pointer perk"
                 :class="{
                   'perk-active': pickedPerks[perkWorldOffset]?.[level]?.some(e => e === info.perk.id),
-                  'perk-preserved': !info.gambled && info.willBeRemoved === false,
+                  'perk-preserved': !info.gambled && seedInfo.perksLottery[level][index] === false,
                   'perk-gambled': info.gambled,
                 }"
                 @click="onClickPerk(level, info.perk)"

@@ -27,6 +27,7 @@ app = new Vue({
       startingFlask: null,
       startingBombWand: null,
       perks: null,
+      perkLottery: null,
       fungalShifts: null
     },
 
@@ -173,6 +174,7 @@ app = new Vue({
     },
     refreshPerks() {
       this.seedInfo.perks = infoProviders.PERK.provide(this.pickedPerks, null, this.perkWorldOffset, this.perkRerolls);
+      this.seedInfo.perksLottery = infoProviders.PERK.perkLottery(this.pickedPerks, this.seedInfo.perks, this.perkWorldOffset);
     },
     copyString(str) {
       let txtCopy = document.createElement('input');
@@ -235,18 +237,22 @@ app = new Vue({
           rainType: [false]
         };
       }
+
       SetWorldSeed(Number(this.seed));
+
       this.seedInfo = {
         rainType: infoProviders.RAIN.provide(),
         startingFlask: infoProviders.STARTING_FLASK.provide(),
         startingSpell: infoProviders.STARTING_SPELL.provide(),
         startingBombSpell: infoProviders.STARTING_BOMB_SPELL.provide(),
-        perks: infoProviders.PERK.provide(this.pickedPerks, null, this.perkWorldOffset, this.perkRerolls),
         perkDeck: infoProviders.PERK.getPerkDeck(true),
+        perks: null,
+        perkLottery: null,
         fungalShifts: infoProviders.FUNGAL_SHIFT.provide(null),
         biomeModifiers: infoProviders.BIOME_MODIFIER.provide(),
         waterCave: infoProviders.WATER_CAVE.provide(),
       };
+      this.refreshPerks();
     },
   },
   computed: {
