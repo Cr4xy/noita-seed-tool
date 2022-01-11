@@ -439,8 +439,8 @@ class PerkInfoProvider extends InfoProvider {
   }
   perkLottery(allPerkPicks, perks, worldOffset) {
     const worldPerkPicks = allPerkPicks[worldOffset] ?? [];
-    const gambledPerks = perks.flat().filter(p => p.gambled === true).map(p => p.perk_id)
-    const destroyChance = allPerkPicks.flat(2).concat(gambledPerks).reduce((a, v) => {
+    const gambledPerks = Object.values(perks).flat().filter(p => p.gambled === true).map(p => p.perk_id)
+    const destroyChance = Object.values(allPerkPicks).flat(2).concat(gambledPerks).reduce((a, v) => {
       if (v === "PERKS_LOTTERY") {
         a /= 2;
       }
