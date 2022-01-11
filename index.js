@@ -247,7 +247,7 @@ app = new Vue({
         startingBombSpell: infoProviders.STARTING_BOMB_SPELL.provide(),
         perkDeck: infoProviders.PERK.getPerkDeck(true),
         perks: null,
-        perkLottery: null,
+        perksLottery: null,
         fungalShifts: infoProviders.FUNGAL_SHIFT.provide(null),
         biomeModifiers: infoProviders.BIOME_MODIFIER.provide(),
         waterCave: infoProviders.WATER_CAVE.provide(),
