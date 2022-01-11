@@ -999,13 +999,15 @@ class SeedRequirementFungalShift extends SeedRequirement {
   test(iterations, fromMaterial, toMaterial, holdingFlasks) {
     let shifts = this.provider.provide(iterations, holdingFlasks);
     function checkShift(shift) {
-      let fromMats = shift[0];
-      let toMat = shift[1];
+      let fromMats = shift.from;
+      let toMat = shift.to;
       if (fromMaterial) {
-        if (fromMats.indexOf(fromMaterial) === -1) return false;
+        let flask = fromMaterial === "(flask)" && shift.flask === "from";
+        if (!flask && fromMats.indexOf(fromMaterial) === -1) return false;
       }
       if (toMaterial) {
-        if (toMat !== toMaterial) return false;
+        let flask = toMaterial === "(flask)" && shift.flask === "to";
+        if (!flask && toMat !== toMaterial) return false;
       }
       return true;
     }
