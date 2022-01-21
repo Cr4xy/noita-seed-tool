@@ -996,8 +996,8 @@ class SeedRequirementFungalShift extends SeedRequirement {
   constructor() {
     super("FungalShift", "Fungal Shift", false, infoProviders.FUNGAL_SHIFT);
   }
-  test(iterations, fromMaterial, toMaterial, holdingFlasks) {
-    let shifts = this.provider.provide(iterations, holdingFlasks);
+  test(iterations, fromMaterial, toMaterial) {
+    let shifts = this.provider.provide(iterations);
     function checkShift(shift) {
       let fromMats = shift.from;
       let toMat = shift.to;
@@ -1196,9 +1196,7 @@ const RequirementFungalShift = function() {
   this.requirement = new SeedRequirementFungalShift();
 };
 RequirementFungalShift.prototype.test = function() {
-  let holdingFlask;
-  if (this.fromMaterial == "(flask)" || this.toMaterial == "(flask)") holdingFlask = true;
-  return this.requirement.test(this.iterations, this.fromMaterial, this.toMaterial, holdingFlask);
+  return this.requirement.test(this.iterations, this.fromMaterial, this.toMaterial);
 }
 RequirementFungalShift.prototype.textify = function() {
   if (this.iterations == -1) {
