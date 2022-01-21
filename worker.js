@@ -42,6 +42,7 @@ self.onmessage = function(e) {
       }
       if (success) break;
       seed += numWorkers;
+      if (seed > 0xFFFFFFFF) break;
       now = Date.now();
       if (nextProgress <= now) {
         nextProgress = now + 500;
@@ -49,6 +50,9 @@ self.onmessage = function(e) {
       }
     }
 
-    self.postMessage([workerId, 1, seed]);
+    if (seed <= 0xFFFFFFFF)
+      self.postMessage([workerId, 1, seed]);
+    else
+      self.postMessage([workerId, 2, 0xFFFFFFFF]);
   });
 }

@@ -21,6 +21,7 @@ app = new Vue({
     searchingSeed: false,
     searchUseAllCores: false,
     seedSearchCounts: [],
+    seedLimitHit: false,
 
     seedInfo: {
       rainType: null,
@@ -41,9 +42,10 @@ app = new Vue({
     searchSeed() {
       if (this.seed == 0) this.seed++;
       this.seedSearchCounts = [];
+      this.seedLimitHit = false;
       let crit = this.serializeSeedCriteria();
       this.initWorkers();
-      let startSeed = this.seed + 1;
+      let startSeed = Number(this.seed) + 1;
       for (let i = 0; i < workers.length; i++)
         workers[i].postMessage([startSeed, i, workers.length, crit]);
       this.searchingSeed = true;
@@ -205,10 +207,17 @@ app = new Vue({
           let [id, type, value] = e.data;
           if (type === 0) { // progress report
             this.$set(this.seedSearchCounts, id, value);
-          } else { // found seed
+          } else if (type === 1) { // found seed
             this.seed = value;
             //this.searchingSeed = false;
             this.cancelSeedSearch();
+          } else if (type === 2) { // hit seed limit
+            workers.splice(workers.indexOf(worker), 1);
+            if (workers.length === 0) {
+              this.seed = value;
+              this.seedLimitHit = true;
+              this.cancelSeedSearch();
+            }
           }
         });
       }

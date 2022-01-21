@@ -43,12 +43,12 @@
         <label class="label">
           <span class="label-text">Seed</span>
         </label>
-        <input type="number" placeholder="Seed" v-model="seed" class="input input-bordered" min="0">
+        <input type="number" placeholder="Seed" v-model="seed" class="input input-bordered" min="0" max="4294967295">
         <label class="label">
           <a href="javascript:void(0)" class="label-text-alt" @click="generateSeed">Random Seed</a>
         </label>
       </div>
-      <div class="collapse w-full md:w-6/12 border rounded-box border-base-300 collapse-arrow" id="search-for-seed-container">
+      <div class="collapse w-full md:w-8/12 border rounded-box border-base-300 collapse-arrow" id="search-for-seed-container">
         <input type="checkbox" v-model="showSeedCriteria">
         <div class="collapse-title text-xl font-medium">
           Search for Seed
@@ -214,24 +214,33 @@
             </tbody>
             <tfoot class="block">
               <tr class="block">
-                <td colspan="3" class="block overflow-x-auto">
-                  <div class="flex flex-row">
+                <td colspan="3" class="block">
+                  <div class="flex flex-row overflow-x-auto">
                     <button class="btn btn-primary" @click="addCriteria">+</button>
                     <div class="flex-grow"></div>
                     <div class="px-5">
                       <pre>Seed Criteria: {{ seedCriteriaText }}</pre>
                     </div>
                     <div class="flex-grow"></div>
-                    <div class="flex flex-col w-36">
+                    <div class="flex flex-col w-52">
                       <div class="flex-grow"></div>
                       <div class="text-right">
                         <button class="btn btn-accent mb-2" @click="copySeedSearchLink">Copy Link</button>
                       </div>
                       <div v-if="!searchingSeed" class="text-right">
-                        <label class="cursor-pointer label">
-                          <span class="label-text">All CPU Cores</span>
+                        <div v-if="seedLimitHit" @click="seedLimitHit = false" class="cursor-pointer">
+                          <div class="badge badge-error">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-4 h-4 mr-2 stroke-current">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                            Seed limit reached
+                          </div>
+                        </div>
+                        <label class="cursor-pointer label" style="display: inline-flex">
+                          <span class="label-text">All CPU Cores&nbsp;&nbsp;</span>
                           <input type="checkbox" checked="checked" class="checkbox" v-model="searchUseAllCores">
                         </label>
+                        <br>
                         <button class="btn btn-secondary" @click="searchSeed">Search</button>
                       </div>
                       <div v-else class="text-right">
@@ -278,7 +287,7 @@
             </div>
           </div>
         </div>
-        <div class="ml-1 mr-1 flex flex-col inline-flex w-64 min-w-max justify-between">
+        <div class="ml-1 mr-1 flex flex-col inline-flex md:w-64 min-w-max justify-between">
           <h2>Fungal Shifts</h2>
           <div class="flex flex-row p-2 pr-0 w-full fungal-shift" v-for="(shift, level) in seedInfo.fungalShifts">
             <div class="mr-1">{{ level + 1 }}</div>
@@ -293,7 +302,7 @@
             </div>
           </div>
         </div>
-        <div class="ml-1 flex flex-col inline-flex w-64 min-w-max">
+        <div class="ml-1 flex flex-col inline-flex md:w-64 min-w-max">
           <h2>Biome Modifiers</h2>
           <div v-for="(modifier, biome) in seedInfo.biomeModifiers" v-if="modifier && isPrimaryBiome(biome)" class="biome-modifier p-2 w-full">
             <div class="relative w-full">
