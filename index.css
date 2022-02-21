@@ -56,6 +56,9 @@
   height: 256px;
   background: url('img/darkcaves.png') 0 0 / 100% no-repeat;
 }
+.link {
+  color: #6495ED;
+}
 @media (max-width: 768px) {
   .seed-criteria {
     display: block;
