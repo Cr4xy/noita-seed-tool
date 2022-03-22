@@ -7,7 +7,7 @@ self.onmessage = function(e) {
   seed = Number(seed);
   seed += offset;
   let workerId = offset;
-  let initialSeed = seed;
+  let count = 0;
   let seedCriteria = parseSeedCriteria(seedCriteriaStr);
 
   Promise.all(loadingInfoProviders).then(() => {
@@ -44,9 +44,10 @@ self.onmessage = function(e) {
       seed += numWorkers;
       if (seed > 0xFFFFFFFF) break;
       now = Date.now();
+      count++;
       if (nextProgress <= now) {
         nextProgress = now + 500;
-        self.postMessage([workerId, 0, seed - initialSeed]);
+        self.postMessage([workerId, 0, count]);
       }
     }
 
